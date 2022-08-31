@@ -4,7 +4,7 @@
     to="account/create"
   >
     <v-img
-      src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
+      src="addsavebluebanner.png"
       height="200px"
     ></v-img>
 

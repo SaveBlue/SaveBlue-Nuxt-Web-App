@@ -114,7 +114,7 @@
             <span v-else>&nbspIncome</span>
           </v-btn>
         </v-card-actions>
-        <v-card-actions>
+        <v-card-actions v-show="edit">
           <v-btn color="secondary" @click="deleteIncomeExpense">
             Delete
           </v-btn>

@@ -4,7 +4,7 @@
     :to="`/account/${account._id}`"
   >
     <v-img
-      src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
+      src="savebluebanner.png"
       height="200px"
     ></v-img>
 

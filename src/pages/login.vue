@@ -4,10 +4,10 @@
       <v-row justify="center">
         <v-card width="400" class="ma-3" elevation="12">
           <v-toolbar dark color="primary">
-            <v-avatar size="50" class="my-1 mr-3" tile>
-              <v-img src="@/assets/logo.png"/>
+            <v-avatar size="50" class="my-1 mr-3 rounded-circle">
+              <v-img src="logo.png"/>
             </v-avatar>
-            <h1>Prijava</h1>
+            <h1>Login</h1>
           </v-toolbar>
           <v-card-text>
             <v-form ref="form" @submit.prevent="userLogin">
@@ -26,7 +26,7 @@
                 autocomplete="on"
               />
               <v-card-actions>
-                <v-btn type="submit" color="primary">Login</v-btn>
+                <v-btn type="submit" color="primary" :loading="loading">Login</v-btn>
                 <!--<v-btn type="submit" color="secondary" absolute right>Register</v-btn>-->
               </v-card-actions>
             </v-form>
@@ -76,15 +76,26 @@ export default {
         password: ''
       },
       showPassword: false,
+      loading: false
     };
   },
   methods: {
     async userLogin() {
       try {
-        let response = await this.$auth.loginWith('local', { data: this.form })
-        console.log(response)
+        this.loading = true;
+        let response = await this.$auth.loginWith('local', { data: this.form });
       } catch (err) {
-        console.log(err)
+        if(err.message.includes("401")){
+          this.snackbar.text = "Wrong Username or Password"
+        }
+        else {
+          this.snackbar.text = "Error"
+        }
+        this.snackbar.color = "error";
+        this.snackbar.visible = true;
+      }
+      finally {
+        this.loading = false;
       }
     }
   },
