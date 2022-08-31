@@ -2,7 +2,16 @@ import colors from 'vuetify/es5/util/colors'
 
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
+  target: 'static',
   ssr: false,
+
+  generate: {
+    fallback: true
+  },
+
+  router: {
+    middleware: ['auth']
+  },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -40,14 +49,42 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    // https://auth.nuxtjs.org/
+    '@nuxtjs/auth-next',
     // https://go.nuxtjs.dev/pwa
-    '@nuxtjs/pwa',
+    '@nuxtjs/pwa'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/',
+    baseURL: 'http://localhost:5000/api',
+  },
+
+  auth:{
+    strategies: {
+      local: {
+        token: {
+          name: 'x-access-token',
+          property: 'x-access-token',
+          type: ''
+        },
+        user: {
+          property: false,
+          // autoFetch: true
+        },
+        endpoints: {
+          login: { url: '/auth/login', method: 'post' },
+          logout: { url: '/auth/logout', method: 'post' },
+          user: { url: '/users/me', method: 'get'}
+        }
+      }
+    },
+    redirect: {
+      logout: '/login',
+      home: '/'
+    },
+    rewriteRedirects: true,
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -61,7 +98,7 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         dark: {
           primary: colors.blue.darken2,
