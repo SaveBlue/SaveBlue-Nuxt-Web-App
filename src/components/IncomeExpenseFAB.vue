@@ -14,10 +14,7 @@
         dark
         fab
       >
-        <v-icon v-if="fab">
-          mdi-close
-        </v-icon>
-        <v-icon v-else>
+        <v-icon class="toggleUpDown" :class='{ "rotate": fab }'>
           mdi-plus
         </v-icon>
       </v-btn>
@@ -58,5 +55,13 @@ export default {
 </script>
 
 <style scoped>
+
+.toggleUpDown {
+  transition: transform .3s ease-in-out !important;
+}
+
+.toggleUpDown.rotate {
+  transform: rotate(45deg);
+}
 
 </style>

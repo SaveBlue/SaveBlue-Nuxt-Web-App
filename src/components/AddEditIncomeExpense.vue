@@ -195,7 +195,7 @@ export default {
         this.incomeExpense = response
         this.incomeExpense.account = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID).name
         this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
-        console.log(this.incomeExpense)
+        //console.log(this.incomeExpense)
       })
     }
 
@@ -206,7 +206,7 @@ export default {
       this.incomeExpense.amount = parseFloat(this.incomeExpense.amount)
       this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
       this.incomeExpense.userID = this.$auth.user._id
-      console.log(this.incomeExpense)
+      //console.log(this.incomeExpense)
       try {
         await this.$axios.post(
           `/${this.isExpense ? 'expenses': 'incomes'}/`,

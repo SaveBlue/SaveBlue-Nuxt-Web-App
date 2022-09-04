@@ -1,22 +1,33 @@
 <template>
   <v-card
     class="mx-auto"
+    hover
+    :to="`/${this.isExpense ? 'expense': 'income'}/${incomeExpense._id}/edit`"
   >
 
-    <v-card-title>{{incomeExpense.category1}}<span v-show="isExpense">&nbsp/ {{incomeExpense.category2}}</span></v-card-title>
+    <div class="d-flex flex-no-wrap justify-space-between">
 
-    <v-card-subtitle>{{incomeExpense.date}}</v-card-subtitle>
+      <div>
 
-    <v-card-title>{{incomeExpense.amount}} €</v-card-title>
+        <v-card-title>{{ incomeExpense.category1 }}<span v-show="isExpense">&nbsp/ {{ incomeExpense.category2 }}</span>
+        </v-card-title>
 
-    <v-card-text>{{incomeExpense.description}}</v-card-text>
-    <v-btn
-      color="primary"
-      text
-      :to="`/${this.isExpense ? 'expense': 'income'}/${incomeExpense._id}/edit`"
-    >
-      Edit
-    </v-btn>
+        <v-card-subtitle>{{ incomeExpense.date.split("T")[0] }}</v-card-subtitle>
+        <v-card-text>{{ incomeExpense.description }}</v-card-text>
+      </div>
+
+      <div class="align-self-center">
+
+        <v-card-title>{{ incomeExpense.amount }} €</v-card-title>
+        <!--<v-btn
+          color="primary"
+          text
+          :to="`/${this.isExpense ? 'expense': 'income'}/${incomeExpense._id}/edit`"
+        >
+          Edit
+        </v-btn>-->
+      </div>
+    </div>
 
     <!--<v-card-actions>
 
@@ -49,7 +60,7 @@
 <script>
 export default {
   name: "IncomesExpensesTable",
-  data () {
+  data() {
     return {
       showDetails: false
     }
