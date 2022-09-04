@@ -3,7 +3,7 @@
     class="mx-auto text-center"
   >
 
-    <v-card-title>
+    <v-card-title class="justify-center">
       Available Balance
     </v-card-title>
 
@@ -13,6 +13,7 @@
 
     <v-card-text>
       <h1>{{account.availableBalance}} €</h1>
+      <br>
       <h3>{{account.totalBalance}} €</h3>
       <h5>(Total Balance)</h5>
     </v-card-text>

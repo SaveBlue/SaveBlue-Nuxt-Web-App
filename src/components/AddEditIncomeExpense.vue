@@ -115,7 +115,7 @@
           </v-btn>
         </v-card-actions>
         <v-card-actions v-show="edit">
-          <v-btn color="secondary" @click="deleteIncomeExpense">
+          <v-btn color="error" @click="deleteIncomeExpense">
             Delete
           </v-btn>
         </v-card-actions>

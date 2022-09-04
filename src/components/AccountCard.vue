@@ -1,16 +1,22 @@
 <template>
   <v-card
     class="mx-auto"
-    :to="`/account/${account._id}`"
+    :to="isNew ? 'account/create' :`/account/${account._id}`"
   >
-    <v-img
-      src="savebluebanner.png"
-      height="200px"
-    ></v-img>
+    <div class="d-flex flex-no-wrap">
+      <v-img
+        :src="isNew ? 'addsavebluebanner.png':'savebluebanner.png'"
+        max-width="33%"
+      ></v-img>
 
-    <v-card-title>{{account.name}}</v-card-title>
+      <div>
+        <v-card-title v-if="isNew">New Account</v-card-title>
+        <v-card-title v-else>{{ account.name }}</v-card-title>
 
-    <v-card-title>{{account.availableBalance}}</v-card-title>
+        <v-card-title v-if="isNew"><br></v-card-title>
+        <v-card-title v-else>{{ account.availableBalance }}</v-card-title>
+      </div>
+    </div>
   </v-card>
 
 </template>
@@ -19,7 +25,8 @@
 export default {
   name: "AccountCard",
   props: {
-    account: Object
+    account: Object,
+    isNew: Boolean
   }
 }
 </script>

@@ -5,7 +5,7 @@
         <AccountCard :account="account"/>
       </v-col>
       <v-col cols="12" sm="6">
-        <NewAccountCard/>
+        <AccountCard :is-new="true"/>
       </v-col>
     </v-row>
   </v-container>

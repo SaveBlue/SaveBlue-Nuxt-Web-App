@@ -23,7 +23,7 @@
           v-model="tab"
           fixed-tabs
         >
-          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tabs-slider color="accent"></v-tabs-slider>
           <v-tab>Overview</v-tab>
           <v-tab>Incomes</v-tab>
           <v-tab>Expenses</v-tab>
@@ -31,7 +31,7 @@
       </template>
     </v-app-bar>
 
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" style="height:100%">
       <!-- Account Overview -->
       <v-tab-item>
         <v-container>
@@ -105,5 +105,9 @@ export default {
 </script>
 
 <style scoped>
+/* Fixing selected tab invisible in dark mode */
+.v-tabs-slider-wrapper, .v-tab--active {
+  color: #fff !important;
+}
 
 </style>

@@ -41,7 +41,7 @@
           </v-row>
           <v-row v-show="edit">
             <v-col cols="12">
-              <v-btn type="submit" color="secondary" @click="dialog=true">Delete Account</v-btn>
+              <v-btn type="submit" color="error" @click="dialog=true">Delete Account</v-btn>
             </v-col>
           </v-row>
         </v-col>

@@ -1,7 +1,7 @@
 <template>
   <v-app dark>
     <v-main>
-      <Nuxt/>
+      <Nuxt style="height: 100%"/>
     </v-main>
   </v-app>
 </template>
