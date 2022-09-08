@@ -18,7 +18,7 @@
 
       <div class="align-self-center">
 
-        <v-card-title>{{ incomeExpense.amount }} €</v-card-title>
+        <v-card-title>{{ incomeExpense.amount/100 }} €</v-card-title>
         <!--<v-btn
           color="primary"
           text
