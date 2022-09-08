@@ -100,7 +100,10 @@ export default {
   data() {
     return {
       dialog: false,
-      account: {},
+      account: {
+        name: "",
+        startOfMonth: 1
+      },
       nameRules: [
         v => !!v || "Required Field",
         v => !!v && v.length <= 32 || "Field too Long",

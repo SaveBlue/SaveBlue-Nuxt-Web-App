@@ -12,6 +12,7 @@ export default {
   router: {
     middleware: ['auth']
   },
+  loading: false,
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -52,7 +53,17 @@ export default {
     // https://auth.nuxtjs.org/
     '@nuxtjs/auth-next',
     // https://go.nuxtjs.dev/pwa
-    '@nuxtjs/pwa'
+    '@nuxtjs/pwa',
+    ['v-currency-field/nuxt', {
+      locale: 'sl-SI',
+      decimalLength: 2,
+      autoDecimalMode: true,
+      min: 0.00,
+      max: 1000000.00,
+      defaultValue: 0,
+      valueAsInteger: true,
+      allowNegative: false
+    }]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios

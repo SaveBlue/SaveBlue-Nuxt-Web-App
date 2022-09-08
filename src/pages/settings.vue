@@ -2,6 +2,9 @@
 <v-container>
   <v-row align="center" justify="center">
     <h1>Not yet implemented :)</h1>
+  </v-row>
+  <v-row align="center" justify="center">
+    <h2>Test dark theme: </h2>
     <v-btn icon v-if="!$vuetify.theme.dark" @click="toggleTheme()">
       <v-icon class="mr-1" color="blue-grey darken-4">mdi-lightbulb</v-icon>
     </v-btn>
