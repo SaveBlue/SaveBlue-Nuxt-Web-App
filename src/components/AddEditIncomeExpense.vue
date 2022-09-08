@@ -225,7 +225,7 @@ export default {
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
         //console.log(this.incomeExpense.amount)
-        /*try {
+        try {
         await this.$axios.post(
           `/${this.isExpense ? 'expenses' : 'incomes'}/`,
           this.incomeExpense,
@@ -239,7 +239,7 @@ export default {
         this.snackbar.text = "Error"
         this.snackbar.color = "error";
         this.snackbar.visible = true;
-      }*/
+      }
       }
       else{
         this.snackbar.text = "Form not valid"
@@ -252,7 +252,7 @@ export default {
       //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
       this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
       console.log(this.incomeExpense.amount)
-      /*try {
+      try {
         await this.$axios.put(
           `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
           this.incomeExpense,
@@ -268,7 +268,7 @@ export default {
         this.snackbar.text = "Error"
         this.snackbar.color = "error";
         this.snackbar.visible = true;
-      }*/
+      }
     },
     async deleteIncomeExpense() {
       try {
