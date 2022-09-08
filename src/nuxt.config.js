@@ -54,7 +54,7 @@ export default {
     '@nuxtjs/auth-next',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
-    ['v-currency-field/nuxt', {
+    ['v-currency-field/nuxt-treeshaking', {
       locale: 'sl-SI',
       decimalLength: 2,
       autoDecimalMode: true,
@@ -116,6 +116,7 @@ export default {
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
+    treeShake: true,
     theme: {
       themes: {
         light: {
