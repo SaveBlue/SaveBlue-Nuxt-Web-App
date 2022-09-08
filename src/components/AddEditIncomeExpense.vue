@@ -251,7 +251,7 @@ export default {
       this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
       //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
       this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
-      console.log(this.incomeExpense.amount)
+      //console.log(this.incomeExpense.amount)
       try {
         await this.$axios.put(
           `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
