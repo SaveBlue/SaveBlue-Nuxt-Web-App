@@ -38,7 +38,7 @@
           <v-row align="center" justify="center">
             <v-col cols="12">
               <v-card v-if="loading" height="190">
-                <v-skeleton-loader type="image"/>
+                <v-skeleton-loader type="image" height="100%"/>
               </v-card>
               <AccountOverviewCard v-else :account="account"/>
             </v-col>
