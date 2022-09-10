@@ -24,6 +24,11 @@
 <script>
 export default {
   name: "AccountOverviewCard",
+  data() {
+    return {
+      loading: true
+    }
+  },
   props:{
     account: Object
   }

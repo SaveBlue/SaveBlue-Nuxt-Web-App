@@ -37,7 +37,10 @@
         <v-container>
           <v-row align="center" justify="center">
             <v-col cols="12">
-              <AccountOverviewCard :account="account"/>
+              <v-card v-if="loading" height="190">
+                <v-skeleton-loader type="image"/>
+              </v-card>
+              <AccountOverviewCard v-else :account="account"/>
             </v-col>
           </v-row>
         </v-container>
@@ -84,14 +87,15 @@ export default {
       tab: false,
       account: {},
       incomes: [],
-      expenses: []
+      expenses: [],
+      loading: true
     }
   },
   async fetch() {
     this.account = await this.$axios.$get(
       `/accounts/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    );
+    ).finally(() => this.loading = false);
     this.incomes = await this.$axios.$get(
       `/incomes/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
