@@ -19,23 +19,21 @@ export default {
     titleTemplate: '%s - src',
     title: 'SaveBlue',
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
-      { name: 'format-detection', content: 'telephone=no' }
+      {charset: 'utf-8'},
+      {name: 'viewport', content: 'width=device-width, initial-scale=1'},
+      {hid: 'description', name: 'description', content: ''},
+      {name: 'format-detection', content: 'telephone=no'}
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
     ]
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [
-  ],
+  css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-  ],
+  plugins: [],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -73,7 +71,7 @@ export default {
     //baseURL: 'http://localhost:5000/api',
   },
 
-  auth:{
+  auth: {
     strategies: {
       local: {
         token: {
@@ -86,9 +84,9 @@ export default {
           // autoFetch: true
         },
         endpoints: {
-          login: { url: '/auth/login', method: 'post' },
-          logout: { url: '/auth/logout', method: 'post' },
-          user: { url: '/users/me', method: 'get'}
+          login: {url: '/auth/login', method: 'post'},
+          logout: {url: '/auth/logout', method: 'post'},
+          user: {url: '/users/me', method: 'get'}
         }
       }
     },
@@ -104,13 +102,27 @@ export default {
     icon: {
       source: 'icon.png'
     },
-    meta:{
+    meta: {
       theme_color: colors.blue.darken2
     },
     manifest: {
       name: 'SaveBlue',
       short_name: 'SaveBlue',
-      lang: 'en'
+      lang: 'en',
+      shortcuts: [
+        {
+          name: "Add Income",
+          short_name: "Add Income",
+          description: "Add new income to an account",
+          url: "/income/add",
+        },
+        {
+          name: "Add Expense",
+          short_name: "Add Expense",
+          description: "Add new expense to an account",
+          url: "/expense/add",
+        }
+      ]
     }
   },
 
@@ -143,6 +155,5 @@ export default {
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-  }
+  build: {}
 }
