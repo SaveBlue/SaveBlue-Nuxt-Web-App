@@ -33,7 +33,9 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [
+    '~plugins/darkTheme.client.js'
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -115,12 +117,14 @@ export default {
           short_name: "Add Income",
           description: "Add new income to an account",
           url: "/income/add",
+          icon: {source: 'icon.png'}
         },
         {
           name: "Add Expense",
           short_name: "Add Expense",
           description: "Add new expense to an account",
           url: "/expense/add",
+          icon: {source: 'icon.png'}
         }
       ]
     }
