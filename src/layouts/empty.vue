@@ -8,7 +8,15 @@
 
 <script>
 export default {
-  name: "empty"
+  name: "empty",
+  mounted() {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      this.$vuetify.theme.dark = true;
+    }
+  }
 }
 </script>
 

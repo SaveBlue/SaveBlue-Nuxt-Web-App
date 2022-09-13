@@ -14,7 +14,7 @@
         <v-card-title v-else>{{ account.name }}</v-card-title>
 
         <v-card-title v-if="isNew"><br></v-card-title>
-        <v-card-title v-else>{{ account.availableBalance/100 }} €</v-card-title>
+        <v-card-title v-else>{{(account.availableBalance/100).toFixed(2) }} €</v-card-title>
       </div>
     </div>
   </v-card>

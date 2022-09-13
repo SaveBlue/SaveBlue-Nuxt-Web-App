@@ -12,9 +12,9 @@
     </v-card-subtitle>
 
     <v-card-text>
-      <h1>{{account.availableBalance/100}} €</h1>
+      <h1>{{(account.availableBalance/100).toFixed(2)}} €</h1>
       <br>
-      <h3>{{account.totalBalance/100}} €</h3>
+      <h3>{{(account.totalBalance/100).toFixed(2)}} €</h3>
       <h5>(Total Balance)</h5>
     </v-card-text>
   </v-card>

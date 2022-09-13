@@ -22,17 +22,25 @@ export default {
       default: null
     }
   },
-  data () {
+  data() {
     return {
       pageNotFound: '404 Not Found',
       otherError: 'An error occurred'
     }
   },
-  head () {
+  head() {
     const title =
       this.error.statusCode === 404 ? this.pageNotFound : this.otherError
     return {
       title
+    }
+  },
+  mounted() {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      this.$vuetify.theme.dark = true;
     }
   }
 }
