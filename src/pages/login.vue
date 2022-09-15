@@ -26,7 +26,7 @@
                 autocomplete="on"
               />
               <v-card-actions>
-                <v-btn type="submit" color="background_color" :loading="loading" :disabled="loading">Login</v-btn>
+                <v-btn type="submit" color="primary" :loading="loading" :disabled="loading">Login</v-btn>
                 <v-btn color="primary" text absolute right to="register">Register</v-btn>
               </v-card-actions>
             </v-form>
