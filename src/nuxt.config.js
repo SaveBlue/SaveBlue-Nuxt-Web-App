@@ -68,8 +68,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: 'https://saveblue.herokuapp.com/api',
-    //baseURL: 'http://localhost:5000/api',
+    baseURL: process.env.NODE_ENV === 'production' ? process.env.BASE_URL : 'http://localhost:5000/api',
   },
 
   auth: {
@@ -116,14 +115,14 @@ export default {
           short_name: "Add Income",
           description: "Add new income to an account",
           url: "/income/add",
-          icon: {source: '/icon.png'}
+          icon: {source: 'icon.png'}
         },
         {
           name: "Add Expense",
           short_name: "Add Expense",
           description: "Add new expense to an account",
           url: "/expense/add",
-          icon: {source: '/icon.png'}
+          icon: {source: 'icon.png'}
         }
       ]
     }
