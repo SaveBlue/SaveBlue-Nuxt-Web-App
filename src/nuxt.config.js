@@ -116,14 +116,22 @@ export default {
           short_name: "Add Income",
           description: "Add new income to an account",
           url: "/income/add",
-          icon: {src: '/icon.png'}
+          icon: {
+            src: '/icon192.png',
+            sizes: "192x192",
+            type: "image/png"
+          }
         },
         {
           name: "Add Expense",
           short_name: "Add Expense",
           description: "Add new expense to an account",
           url: "/expense/add",
-          icon: {src: '/icon.png'}
+          icon: {
+            src: '/icon192.png',
+            sizes: "192x192",
+            type: "image/png"
+          }
         }
       ]
     }
