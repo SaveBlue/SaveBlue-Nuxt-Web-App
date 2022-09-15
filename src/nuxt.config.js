@@ -109,20 +109,21 @@ export default {
       name: 'SaveBlue',
       short_name: 'SaveBlue',
       lang: 'en',
+      background_color: colors.blue.darken2,
       shortcuts: [
         {
           name: "Add Income",
           short_name: "Add Income",
           description: "Add new income to an account",
           url: "/income/add",
-          icon: {source: '/icon192.png'}
+          icon: {src: '/icon.png'}
         },
         {
           name: "Add Expense",
           short_name: "Add Expense",
           description: "Add new expense to an account",
           url: "/expense/add",
-          icon: {source: '/icon192.png'}
+          icon: {src: '/icon.png'}
         }
       ]
     }
@@ -144,7 +145,7 @@ export default {
           success: colors.blue
         },
         dark: {
-          primary: colors.blue.darken3,
+          primary: colors.blue.darken2,
           accent: colors.amber.accent3,
           secondary: colors.lightBlue.lighten2,
           info: colors.grey,
