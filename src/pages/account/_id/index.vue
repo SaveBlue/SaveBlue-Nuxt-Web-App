@@ -96,8 +96,8 @@ export default {
   data() {
     return {
       tab: false,
-      dateStart: "",
-      dateEnd: "",
+      startDate: "",
+      endDate: "",
       account: {},
       incomes: [],
       expenses: [],
@@ -116,17 +116,17 @@ export default {
 
       // Set date range
       let d = new Date(Date.now())
-      this.dateEnd = d.toISOString().split('T')[0]
+      this.endDate = d.toISOString().split('T')[0]
       d.setMonth(d.getMonth() - 1)
       d.setDate(this.account.startOfMonth)
-      this.dateStart = d.toISOString().split('T')[0]
+      this.startDate = d.toISOString().split('T')[0]
 
       // Expense breakdown
       this.$axios.$get(
         `/expenses/breakdown/${this.account._id}`,
         {
           headers: {"x-access-token": this.$auth.strategy.token.get()},
-          params: {dateStart: this.dateStart, dateEnd: this.dateEnd}
+          params: {startDate: this.startDate, endDate: this.endDate}
         }
       ).then(breakdown => {
         this.expenseBreakdown = breakdown
