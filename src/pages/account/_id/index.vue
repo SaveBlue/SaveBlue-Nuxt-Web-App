@@ -35,12 +35,23 @@
       <!-- Account Overview -->
       <v-tab-item>
         <v-container>
+          <!-- Loaders -->
           <v-row align="center" justify="center">
-            <v-col cols="12">
-              <v-card v-if="loading" height="190">
+            <v-col v-if="loading" cols="12">
+              <v-card height="190" class="py-3">
                 <v-skeleton-loader type="image" height="100%"/>
               </v-card>
-              <AccountOverviewCard v-else :account="account"/>
+              <v-card height="190" class="py-3">
+                <v-skeleton-loader type="image" height="100%"/>
+              </v-card>
+            </v-col>
+            <!-- Overview -->
+            <v-col v-else cols="12">
+              <AccountOverviewCard :account="account"/>
+            </v-col>
+            <!-- Expenses Breakdown -->
+            <v-col cols="12">
+              <IncomeExpenseBreakdown :expenseBreakdown="expenseBreakdown"/>
             </v-col>
           </v-row>
         </v-container>
@@ -51,7 +62,7 @@
         <v-container>
           <v-row align="center" justify="center">
             <v-col cols="12" v-for="income in incomes" :key="income._id">
-              <IncomesExpensesTable :incomeExpense="income" />
+              <IncomesExpensesTable :incomeExpense="income"/>
             </v-col>
           </v-row>
         </v-container>
@@ -64,7 +75,7 @@
             <v-col cols="12">
               <v-row align="center" justify="center">
                 <v-col cols="12" v-for="expense in expenses" :key="expense._id">
-                  <IncomesExpensesTable :incomeExpense="expense" :isExpense=true />
+                  <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
                 </v-col>
               </v-row>
             </v-col>
@@ -85,21 +96,52 @@ export default {
   data() {
     return {
       tab: false,
+      dateStart: "",
+      dateEnd: "",
       account: {},
       incomes: [],
       expenses: [],
+      expenseBreakdown: [],
       loading: true
     }
   },
   async fetch() {
-    this.account = await this.$axios.$get(
+
+    // Account details
+    await this.$axios.$get(
       `/accounts/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    ).finally(() => this.loading = false);
+    ).then( async (account) => {
+      this.account = account
+
+      // Set date range
+      let d = new Date(Date.now())
+      this.dateEnd = d.toISOString().split('T')[0]
+      d.setMonth(d.getMonth() - 1)
+      d.setDate(this.account.startOfMonth)
+      this.dateStart = d.toISOString().split('T')[0]
+
+      // Expense breakdown
+      this.$axios.$get(
+        `/expenses/breakdown/${this.account._id}`,
+        {
+          headers: {"x-access-token": this.$auth.strategy.token.get()},
+          params: {dateStart: this.dateStart, dateEnd: this.dateEnd}
+        }
+      ).then(breakdown => {
+        this.expenseBreakdown = breakdown
+      })
+    }).finally(() => {
+      this.loading = false
+    });
+
+    // Account incomes
     this.incomes = await this.$axios.$get(
       `/incomes/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
     );
+
+    // Account expenses
     this.expenses = await this.$axios.$get(
       `/expenses/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
