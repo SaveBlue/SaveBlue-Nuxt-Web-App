@@ -45,6 +45,9 @@ export default {
               width: 450
             },
             legend: {
+              show: false,
+              width: 350,
+              horizontalAlign: 'right',
               position: 'bottom'
             }
           }
@@ -108,5 +111,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
