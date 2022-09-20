@@ -4,11 +4,6 @@ export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   target: 'static',
   ssr: false,
-  render: {
-    bundleRenderer: {
-      runInNewContext: process.env.NODE_ENV !== 'production'
-    }
-  },
 
   generate: {
     fallback: true
