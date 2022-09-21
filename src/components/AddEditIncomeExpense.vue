@@ -13,7 +13,7 @@
         dark
         app
       >
-        <v-app-bar-nav-icon @click="$router.back()">
+        <v-app-bar-nav-icon @click="$nuxt.context.from.path === `/${$props.isExpense ? 'expense' : 'income'}/add` ? $router.push('/') : $router.back()">
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
 
@@ -201,7 +201,10 @@ export default {
   },
   props: {
     edit: Boolean,
-    isExpense: Boolean
+    isExpense: {
+      type: Boolean,
+      default: false
+    }
   },
   async fetch() {
     await this.$axios.$get(
