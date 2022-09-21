@@ -12,7 +12,10 @@ export default {
   router: {
     middleware: ['auth']
   },
-  loading: false,
+  loadingIndicator: {
+    background: colors.blue.darken2,
+    color: colors.grey.lighten1
+  },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {

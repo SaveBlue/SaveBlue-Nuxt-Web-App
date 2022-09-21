@@ -2,7 +2,7 @@
   <v-card class="mx-auto text-center">
 
     <v-card-title class="justify-center">
-      Expense Breakdown
+      {{isExpense ? "Expense Breakdown" : "Income Breakdown"}}
     </v-card-title>
 
     <v-card-text>
@@ -22,12 +22,13 @@ export default {
     }
   },
   props: {
-    expenseBreakdown: Array
+    incomeExpenseBreakdown: Array,
+    isExpense: Boolean
   },
   computed: {
     series() {
       let series = []
-      this.expenseBreakdown.forEach((element) => {
+      this.incomeExpenseBreakdown.forEach((element) => {
         series.push(element.sum)
       })
       return series
@@ -101,7 +102,7 @@ export default {
           }
         }
       }
-      this.expenseBreakdown.forEach((element) => {
+      this.incomeExpenseBreakdown.forEach((element) => {
         chartOptions.labels.push(element._id)
       })
       return chartOptions

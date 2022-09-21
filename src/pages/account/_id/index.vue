@@ -49,9 +49,13 @@
             <v-col v-else cols="12">
               <AccountOverviewCard :account="account"/>
             </v-col>
-            <!-- Expenses Breakdown -->
+            <!-- Expense Breakdown -->
             <v-col cols="12">
-              <IncomeExpenseBreakdown :expenseBreakdown="expenseBreakdown"/>
+              <IncomeExpenseBreakdown :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown"/>
+            </v-col>
+            <!-- Income Breakdown -->
+            <v-col cols="12">
+              <IncomeExpenseBreakdown :incomeExpenseBreakdown="incomeBreakdown"/>
             </v-col>
           </v-row>
         </v-container>
@@ -102,6 +106,7 @@ export default {
       incomes: [],
       expenses: [],
       expenseBreakdown: [],
+      incomeBreakdown: [],
       loading: true
     }
   },
@@ -130,6 +135,17 @@ export default {
         }
       ).then(breakdown => {
         this.expenseBreakdown = breakdown
+      })
+
+      // Income breakdown
+      this.$axios.$get(
+        `/incomes/breakdown/${this.account._id}`,
+        {
+          headers: {"x-access-token": this.$auth.strategy.token.get()},
+          params: {startDate: this.startDate, endDate: this.endDate}
+        }
+      ).then(breakdown => {
+        this.incomeBreakdown = breakdown
       })
     }).finally(() => {
       this.loading = false
