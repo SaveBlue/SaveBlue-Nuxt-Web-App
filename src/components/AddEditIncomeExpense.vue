@@ -13,7 +13,7 @@
         dark
         app
       >
-        <v-app-bar-nav-icon @click="$nuxt.context.from.path === `/${$props.isExpense ? 'expense' : 'income'}/add` ? $router.push('/') : $router.back()">
+        <v-app-bar-nav-icon @click="$nuxt.context.from.path.includes('account') ? $router.back() : $router.push('/')">
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
 
@@ -245,7 +245,7 @@ export default {
             {headers: {"x-access-token": this.$auth.strategy.token.get()}}
           ).then(
             () => {
-              this.$router.back()
+            this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
             }
           )
         } catch {

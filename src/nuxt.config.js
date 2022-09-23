@@ -12,6 +12,11 @@ export default {
   router: {
     middleware: ['auth']
   },
+
+  loading: {
+    color: colors.amber.accent3
+  },
+
   loadingIndicator: {
     background: colors.blue.darken2,
     color: colors.grey.lighten1

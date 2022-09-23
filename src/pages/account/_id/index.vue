@@ -120,11 +120,11 @@ export default {
       this.account = account
 
       // Set date range
-      let d = new Date(Date.now())
-      this.endDate = d.toISOString().split('T')[0]
-      d.setMonth(d.getMonth() - 1)
-      d.setDate(this.account.startOfMonth)
-      this.startDate = d.toISOString().split('T')[0]
+      let d = new Date(Date.now());
+      this.endDate = d.toISOString().split('T')[0];
+      (this.account.startOfMonth - d.getDate() > 0) && d.setMonth(d.getMonth() - 1);
+      d.setDate(this.account.startOfMonth);
+      this.startDate = d.toISOString().split('T')[0];
 
       // Expense breakdown
       this.$axios.$get(
