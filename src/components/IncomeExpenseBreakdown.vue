@@ -6,7 +6,7 @@
     </v-card-title>
 
     <v-card-text>
-      <VueApexCharts class="d-flex justify-center" type="donut" :options="chartOptions"
+      <VueApexCharts v-if="series && series.length" class="d-flex justify-center" type="donut" :options="chartOptions"
                      :series="series"></VueApexCharts>
     </v-card-text>
   </v-card>
@@ -37,8 +37,9 @@ export default {
       let chartOptions = {
         labels: [],
         stroke: {
-          show: false
-        },
+          show: true,
+          colors: this.$vuetify.theme.dark ? '#00000099' : '#ffffffb3'
+    },
         responsive: [{
           breakpoint: 1000,
           options: {
