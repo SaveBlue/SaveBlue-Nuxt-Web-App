@@ -33,15 +33,16 @@
                 v-model="incomeExpense.amount"
                 :rules="amountRules"
                 label="Amount"
+                prepend-icon="mdi-currency-eur"
                 required
                 suffix="€"
               />
-              <h3>Categories</h3>
               <div v-if="isExpense">
                 <v-select
                   v-model="incomeExpense.category1"
                   :items="primaryCategoriesExpense"
                   label="Primary Category"
+                  prepend-icon="mdi-numeric-1-circle-outline"
                   :rules="requiredRules"
                   required
                 ></v-select>
@@ -50,6 +51,7 @@
                   v-model="incomeExpense.category2"
                   :items="incomeExpense.category1 === 'Personal' ? secondaryCategories1 : incomeExpense.category1 === 'Food & Drinks' ? secondaryCategories2 : incomeExpense.category1 === 'Home & Utilities' ? secondaryCategories3 : incomeExpense.category1 === 'Transport' ? secondaryCategories4 : incomeExpense.category1 === 'Leisure' ? secondaryCategories5 : incomeExpense.category1 === 'Health' ? secondaryCategories6 : incomeExpense.category1 === 'Finance' ? secondaryCategories7 : []"
                   label="Secondary Category"
+                  prepend-icon="mdi-numeric-2-circle-outline"
                   :rules="requiredRules"
                   required
                 ></v-select>
@@ -59,6 +61,7 @@
                   v-model="incomeExpense.category1"
                   :items="primaryCategoriesIncome"
                   label="Primary Category"
+                  prepend-icon="mdi-numeric-1-circle-outline"
                   :rules="requiredRules"
                   required
                 ></v-select>
@@ -67,9 +70,9 @@
                 v-model="incomeExpense.description"
                 :counter="32"
                 label="Description"
+                prepend-icon="mdi-text"
                 :rules="descriptionRules"
               />
-              <h3>Date</h3>
               <v-dialog
                 ref="dialog"
                 v-model="modal"
@@ -81,7 +84,7 @@
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
                     v-model="incomeExpense.date"
-                    label="Picker in dialog"
+                    label="Date"
                     prepend-icon="mdi-calendar"
                     readonly
                     v-bind="attrs"
@@ -111,12 +114,11 @@
                   </v-btn>
                 </v-date-picker>
               </v-dialog>
-
-              <h3>Account</h3>
               <v-select
                 v-model="incomeExpense.account"
                 :items="accounts.map(a => a.name)"
                 label="Account"
+                prepend-icon="mdi-wallet"
                 :rules="requiredRules"
               ></v-select>
             </v-form>

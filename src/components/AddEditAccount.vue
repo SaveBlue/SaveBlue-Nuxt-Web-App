@@ -13,7 +13,7 @@
         dark
         app
       >
-        <v-app-bar-nav-icon to="/">
+        <v-app-bar-nav-icon @click="$router.back()">
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
 
@@ -22,37 +22,41 @@
 
       </v-app-bar>
       <v-container>
-        <v-row align="center" justify="center">
-          <v-col cols="12">
-            <v-text-field
-              v-model="account.name"
-              :counter="32"
-              label="Account Name"
-            />
-            <v-slider
-              v-model="account.startOfMonth"
-              min="1"
-              max="31"
-              thumb-label
-              ticks
-            />
-            <v-row v-show="!edit">
+        <v-card>
+          <v-card-text>
+            <v-row align="center" justify="center">
               <v-col cols="12">
-                <v-btn type="submit" color="primary" @click="createAccount">Create Account</v-btn>
+                <v-text-field
+                  v-model="account.name"
+                  :counter="32"
+                  label="Account Name"
+                  prepend-icon="mdi-wallet"
+                />
+                <v-slider
+                  label="Billing day"
+                  prepend-icon="mdi-update"
+                  v-model="account.startOfMonth"
+                  min="1"
+                  max="31"
+                  thumb-label
+                  ticks
+                />
+                <v-row v-show="!edit">
+                  <v-col cols="12">
+                    <v-btn type="submit" color="primary" @click="createAccount">Create Account</v-btn>
+                  </v-col>
+                </v-row>
+                <v-row v-show="edit" >
+                  <v-col cols="12">
+                    <v-btn type="submit" color="primary" @click="updateAccount">Update Account</v-btn>
+
+                    <v-btn class="my-3" type="submit" color="error" text @click="dialog=true">Delete Account</v-btn>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
-            <v-row v-show="edit">
-              <v-col cols="12">
-                <v-btn type="submit" color="primary" @click="updateAccount">Update Account</v-btn>
-              </v-col>
-            </v-row>
-            <v-row v-show="edit">
-              <v-col cols="12">
-                <v-btn type="submit" color="error" @click="dialog=true">Delete Account</v-btn>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
+          </v-card-text>
+        </v-card>
 
         <v-dialog
           v-model="dialog"
@@ -72,14 +76,13 @@
 
               <v-btn
                 color="primary"
-                text
                 @click="dialog = false"
               >
                 No
               </v-btn>
 
               <v-btn
-                color="primary"
+                color="error"
                 text
                 @click="deleteAccount"
               >
@@ -126,7 +129,10 @@ export default {
     }
   },
   props: {
-    edit: Boolean,
+    edit: {
+      type: Boolean,
+      default: false
+    }
 
   },
   async fetch() {

@@ -25,8 +25,8 @@
         >
           <v-tabs-slider color="accent"></v-tabs-slider>
           <v-tab>Overview</v-tab>
-          <v-tab>Incomes</v-tab>
           <v-tab>Expenses</v-tab>
+          <v-tab>Incomes</v-tab>
         </v-tabs>
       </template>
     </v-app-bar>
@@ -61,27 +61,23 @@
         </v-container>
       </v-tab-item>
 
-      <!-- Account Incomes -->
+      <!-- Account Expenses -->
       <v-tab-item>
         <v-container>
-          <v-row align="center" justify="center">
-            <v-col cols="12" v-for="income in incomes" :key="income._id">
-              <IncomesExpensesTable :incomeExpense="income"/>
+          <v-row class="pt-1" align="center" justify="center">
+            <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._id">
+              <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
             </v-col>
           </v-row>
         </v-container>
       </v-tab-item>
 
-      <!-- Account Expenses -->
+      <!-- Account Incomes -->
       <v-tab-item>
         <v-container>
-          <v-row align="center" justify="center">
-            <v-col cols="12">
-              <v-row align="center" justify="center">
-                <v-col cols="12" v-for="expense in expenses" :key="expense._id">
-                  <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
-                </v-col>
-              </v-row>
+          <v-row class="pt-1" align="center" justify="center">
+            <v-col class="py-1" cols="12" v-for="income in incomes" :key="income._id">
+              <IncomesExpensesTable :incomeExpense="income"/>
             </v-col>
           </v-row>
         </v-container>
@@ -116,7 +112,7 @@ export default {
     await this.$axios.$get(
       `/accounts/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    ).then( async (account) => {
+    ).then(async (account) => {
       this.account = account
 
       // Set date range

@@ -8,7 +8,7 @@
     </v-card-title>
 
     <v-card-subtitle>
-      Start of Month: {{account.startOfMonth}}
+      Billing day: {{account.startOfMonth}}
     </v-card-subtitle>
 
     <v-card-text>
