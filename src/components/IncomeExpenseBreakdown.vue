@@ -8,6 +8,7 @@
     <v-card-text>
       <VueApexCharts v-if="series && series.length" class="d-flex justify-center" type="donut" :options="chartOptions"
                      :series="series"></VueApexCharts>
+      <h1 v-else>No {{isExpense ? "Expenses" : "Incomes"}}</h1>
     </v-card-text>
   </v-card>
 

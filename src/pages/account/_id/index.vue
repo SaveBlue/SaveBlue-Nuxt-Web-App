@@ -18,6 +18,44 @@
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
 
+      <v-dialog
+        ref="dialog"
+        v-model="modal"
+        :return-value.sync="dateRange"
+        persistent
+        width="290px"
+      >
+        <template v-slot:activator="{ on, attrs }">
+
+          <v-btn v-bind="attrs" v-on="on" icon>
+            <v-icon>mdi-calendar</v-icon>
+          </v-btn>
+        </template>
+        <v-date-picker
+          v-model="selectedDateRange"
+          range
+          scrollable
+          first-day-of-week="1"
+
+        >
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            color="primary"
+            @click="modal = false; selectedDateRange = dateRange"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="$refs.dialog.save(selectedDateRange)"
+          >
+            OK
+          </v-btn>
+        </v-date-picker>
+      </v-dialog>
+
       <template v-slot:extension>
         <v-tabs
           v-model="tab"
@@ -98,51 +136,72 @@ export default {
       tab: false,
       startDate: "",
       endDate: "",
+      dateRange: ["", ""],
+      selectedDateRange: ["", ""],
       account: {},
       incomes: [],
       expenses: [],
       expenseBreakdown: [],
       incomeBreakdown: [],
-      loading: true
+      loading: true,
+      modal: false,
+      date: ""
     }
   },
-  async fetch() {
-
-    // Account details
-    await this.$axios.$get(
-      `/accounts/find/${this.$route.params.id}`,
-      {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    ).then(async (account) => {
-      this.account = account
-
-      // Set date range
-      let d = new Date(Date.now());
-      this.endDate = d.toISOString().split('T')[0];
-      (this.account.startOfMonth - d.getDate() > 0) && d.setMonth(d.getMonth() - 1);
-      d.setDate(this.account.startOfMonth);
-      this.startDate = d.toISOString().split('T')[0];
-
-      // Expense breakdown
-      this.$axios.$get(
+  methods: {
+    async getAccount() {
+      return this.$axios.$get(
+        `/accounts/find/${this.$route.params.id}`,
+        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+      )
+    },
+    getExpenseBreakdown() {
+      return this.$axios.$get(
         `/expenses/breakdown/${this.account._id}`,
         {
           headers: {"x-access-token": this.$auth.strategy.token.get()},
           params: {startDate: this.startDate, endDate: this.endDate}
         }
-      ).then(breakdown => {
-        this.expenseBreakdown = breakdown
-      })
-
-      // Income breakdown
-      this.$axios.$get(
+      )
+    },
+    getIncomeBreakdown() {
+      return this.$axios.$get(
         `/incomes/breakdown/${this.account._id}`,
         {
           headers: {"x-access-token": this.$auth.strategy.token.get()},
           params: {startDate: this.startDate, endDate: this.endDate}
         }
-      ).then(breakdown => {
-        this.incomeBreakdown = breakdown
+      )
+    },
+    async setInitialDateRange(){
+      let d = new Date(Date.now());
+      let start, end;
+      end = d.toISOString().split('T')[0];
+      (this.account.startOfMonth - d.getDate() > 0) && d.setMonth(d.getMonth() - 1);
+      d.setDate(this.account.startOfMonth);
+      start = d.toISOString().split('T')[0];
+      this.dateRange = [start, end];
+      this.selectedDateRange = this.dateRange
+    }
+  },
+  async fetch() {
+
+    // Account details
+    await this.getAccount().then(async (account) => {
+      this.account = account
+
+      // Set date range
+      await this.setInitialDateRange()
+
+      // Expense breakdown
+      /*this.getExpenseBreakdown().then(breakdown => {
+        this.expenseBreakdown = breakdown
       })
+
+      // Income breakdown
+      this.getIncomeBreakdown().then(breakdown => {
+        this.incomeBreakdown = breakdown
+      })*/
     }).finally(() => {
       this.loading = false
     });
@@ -158,6 +217,34 @@ export default {
       `/expenses/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
     );
+  },
+  watch: {
+    dateRange: function (val) {
+
+      // TODO: make more efficient
+      // Order dates
+      let start = val[0]
+      let end = val[1] ? val[1] : val[0]
+        let compare = start.localeCompare(end)
+        if (compare > 0) {
+          this.startDate = end
+          this.endDate = start
+        }
+        else {
+          this.startDate = start
+          this.endDate = end
+        }
+
+        // Expense breakdown
+        this.getExpenseBreakdown().then(breakdown => {
+          this.expenseBreakdown = breakdown
+        })
+
+        // Income breakdown
+        this.getIncomeBreakdown().then(breakdown => {
+          this.incomeBreakdown = breakdown
+        })
+    }
   }
 }
 </script>
