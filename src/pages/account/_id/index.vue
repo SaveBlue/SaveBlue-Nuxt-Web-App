@@ -18,44 +18,6 @@
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
 
-      <v-dialog
-        ref="dialog"
-        v-model="modal"
-        :return-value.sync="dateRange"
-        persistent
-        width="290px"
-      >
-        <template v-slot:activator="{ on, attrs }">
-
-          <v-btn v-bind="attrs" v-on="on" icon>
-            <v-icon>mdi-calendar</v-icon>
-          </v-btn>
-        </template>
-        <v-date-picker
-          v-model="selectedDateRange"
-          range
-          scrollable
-          first-day-of-week="1"
-
-        >
-          <v-spacer></v-spacer>
-          <v-btn
-            text
-            color="primary"
-            @click="modal = false; selectedDateRange = dateRange"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            @click="$refs.dialog.save(selectedDateRange)"
-          >
-            OK
-          </v-btn>
-        </v-date-picker>
-      </v-dialog>
-
       <template v-slot:extension>
         <v-tabs
           v-model="tab"
@@ -87,13 +49,68 @@
             <v-col v-else cols="12">
               <AccountOverviewCard :account="account"/>
             </v-col>
-            <!-- Expense Breakdown -->
+            <!-- Analytics -->
             <v-col cols="12">
-              <IncomeExpenseBreakdown :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown"/>
-            </v-col>
-            <!-- Income Breakdown -->
-            <v-col cols="12">
-              <IncomeExpenseBreakdown :incomeExpenseBreakdown="incomeBreakdown"/>
+              <v-card class="mx-auto text-center">
+                <v-card-title class="justify-center">Analytics</v-card-title>
+                <v-card-text>
+                  <v-menu
+                    ref="dialog"
+                    v-model="modal"
+                    :return-value.sync="dateRange"
+                    :close-on-content-click="false"
+                    transition="scroll-y-transition"
+                    open-on-focus
+                    offset-y
+                    width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+
+                      <v-combobox
+                        v-model="selectedDateRange"
+                        multiple
+                        chips
+                        small-chips
+                        label="Time Period"
+                        prepend-inner-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        dense
+                      ></v-combobox>
+                    </template>
+                    <v-date-picker
+                      v-model="selectedDateRange"
+                      range
+                      scrollable
+                      first-day-of-week="1"
+
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="modal = false; selectedDateRange = dateRange"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="$refs.dialog.save(selectedDateRange)"
+                      >
+                        OK
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+
+
+                  <!-- Expense Breakdown -->
+                  <IncomeExpenseBreakdown :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown"/>
+                  <!-- Income Breakdown -->
+                  <IncomeExpenseBreakdown :incomeExpenseBreakdown="incomeBreakdown"/>
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
         </v-container>
@@ -173,7 +190,7 @@ export default {
         }
       )
     },
-    async setInitialDateRange(){
+    async setInitialDateRange() {
       let d = new Date(Date.now());
       let start, end;
       end = d.toISOString().split('T')[0];
@@ -225,25 +242,24 @@ export default {
       // Order dates
       let start = val[0]
       let end = val[1] ? val[1] : val[0]
-        let compare = start.localeCompare(end)
-        if (compare > 0) {
-          this.startDate = end
-          this.endDate = start
-        }
-        else {
-          this.startDate = start
-          this.endDate = end
-        }
+      let compare = start.localeCompare(end)
+      if (compare > 0) {
+        this.startDate = end
+        this.endDate = start
+      } else {
+        this.startDate = start
+        this.endDate = end
+      }
 
-        // Expense breakdown
-        this.getExpenseBreakdown().then(breakdown => {
-          this.expenseBreakdown = breakdown
-        })
+      // Expense breakdown
+      this.getExpenseBreakdown().then(breakdown => {
+        this.expenseBreakdown = breakdown
+      })
 
-        // Income breakdown
-        this.getIncomeBreakdown().then(breakdown => {
-          this.incomeBreakdown = breakdown
-        })
+      // Income breakdown
+      this.getIncomeBreakdown().then(breakdown => {
+        this.incomeBreakdown = breakdown
+      })
     }
   }
 }

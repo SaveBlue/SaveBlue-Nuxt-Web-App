@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto text-center">
+  <v-card flat class="mx-auto text-center">
 
     <v-card-title class="justify-center">
       {{isExpense ? "Expense Breakdown" : "Income Breakdown"}}
