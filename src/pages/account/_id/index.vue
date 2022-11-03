@@ -54,19 +54,16 @@
               <v-card class="mx-auto text-center">
                 <v-card-title class="justify-center">Analytics</v-card-title>
                 <v-card-text>
-                  <v-menu
+                  <v-dialog
                     ref="dialog"
                     v-model="modal"
                     :return-value.sync="dateRange"
-                    :close-on-content-click="false"
-                    transition="scroll-y-transition"
                     open-on-focus
-                    offset-y
-                    width="auto"
                   >
                     <template v-slot:activator="{ on, attrs }">
 
                       <v-combobox
+                        append-icon=""
                         v-model="selectedDateRange"
                         multiple
                         chips
@@ -77,6 +74,7 @@
                         v-bind="attrs"
                         v-on="on"
                         dense
+                        tabindex="2"
                       ></v-combobox>
                     </template>
                     <v-date-picker
@@ -84,7 +82,7 @@
                       range
                       scrollable
                       first-day-of-week="1"
-
+                      width="auto"
                     >
                       <v-spacer></v-spacer>
                       <v-btn
@@ -102,7 +100,7 @@
                         OK
                       </v-btn>
                     </v-date-picker>
-                  </v-menu>
+                  </v-dialog>
 
 
                   <!-- Expense Breakdown -->
