@@ -210,6 +210,7 @@ export default {
       this.dateRange = [start, end];
       this.selectedDateRange = this.dateRange
     },
+    // TODO: gets called too ofter
     infiniteScrollingExpenses(entries, observer, isIntersecting) {
       if (!this.loadingExpenses && !this.stopLoadingExpenses) {
         this.loadingExpenses = true;
@@ -218,8 +219,8 @@ export default {
           `/expenses/find/${this.$route.params.id}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.expensesPageCounter}}
         ).then(response => {
-          console.log("hi")
-          console.log(response)
+          //console.log("hi")
+          //console.log(response)
           if (response.length > 0) {
             response.forEach(item => this.expenses.push(item));
           } else {
@@ -235,28 +236,30 @@ export default {
       }
     },
     infiniteScrollingIncomes(entries, observer, isIntersecting) {
-      if (!this.loadingIncomes && !this.stopLoadingIncomes) {
-        this.loadingIncomes = true;
-        this.incomesPageCounter++;
-        this.$axios.$get(
-          `/incomes/find/${this.$route.params.id}`,
-          {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
-        ).then(response => {
-          console.log("ho")
-          console.log(response)
-          if (response.length > 0) {
-            response.forEach(item => this.incomes.push(item));
-          } else {
-            this.stopLoadingIncomes = true
-          }
-        })
-          .catch(err => {
-            console.log(err)
+      setTimeout(() => {
+        if (!this.loadingIncomes && !this.stopLoadingIncomes) {
+          this.loadingIncomes = true;
+          this.incomesPageCounter++;
+          this.$axios.$get(
+            `/incomes/find/${this.$route.params.id}`,
+            {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
+          ).then(response => {
+            //console.log("ho")
+            //console.log(response)
+            if (response.length > 0) {
+              response.forEach(item => this.incomes.push(item));
+            } else {
+              this.stopLoadingIncomes = true
+            }
           })
-          .finally(() => {
-            this.loadingIncomes = false
-          });
-      }
+            .catch(err => {
+              console.log(err)
+            })
+            .finally(() => {
+              this.loadingIncomes = false
+            });
+        }
+      }, 500);
     }
   },
   async fetch() {
