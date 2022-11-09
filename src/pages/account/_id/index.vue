@@ -121,6 +121,9 @@
             <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._id">
               <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
             </v-col>
+            <v-col class="text-center" v-intersect="infiniteScrollingExpenses">
+              <v-progress-circular class="py-2 text-center" color="primary" indeterminate v-if="loadingExpenses"/>
+            </v-col>
           </v-row>
         </v-container>
       </v-tab-item>
@@ -131,6 +134,9 @@
           <v-row class="pt-1" align="center" justify="center">
             <v-col class="py-1" cols="12" v-for="income in incomes" :key="income._id">
               <IncomesExpensesTable :incomeExpense="income"/>
+            </v-col>
+            <v-col class="text-center" v-intersect="infiniteScrollingIncomes">
+              <v-progress-circular class="py-2" color="primary" indeterminate v-if="loadingIncomes"/>
             </v-col>
           </v-row>
         </v-container>
@@ -155,7 +161,13 @@ export default {
       selectedDateRange: ["", ""],
       account: {},
       incomes: [],
+      incomesPageCounter: 0,
+      loadingIncomes: false,
+      stopLoadingIncomes: false,
       expenses: [],
+      expensesPageCounter: 0,
+      loadingExpenses: false,
+      stopLoadingExpenses: false,
       expenseBreakdown: [],
       incomeBreakdown: [],
       loading: true,
@@ -197,6 +209,54 @@ export default {
       start = d.toISOString().split('T')[0];
       this.dateRange = [start, end];
       this.selectedDateRange = this.dateRange
+    },
+    infiniteScrollingExpenses(entries, observer, isIntersecting) {
+      if (!this.loadingExpenses && !this.stopLoadingExpenses) {
+        this.loadingExpenses = true;
+        this.expensesPageCounter++;
+        this.$axios.$get(
+          `/expenses/find/${this.$route.params.id}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.expensesPageCounter}}
+        ).then(response => {
+          console.log("hi")
+          console.log(response)
+          if (response.length > 0) {
+            response.forEach(item => this.expenses.push(item));
+          } else {
+            this.stopLoadingExpenses = true
+          }
+        })
+          .catch(err => {
+            console.log(err)
+          })
+          .finally(() => {
+            this.loadingExpenses = false
+          });
+      }
+    },
+    infiniteScrollingIncomes(entries, observer, isIntersecting) {
+      if (!this.loadingIncomes && !this.stopLoadingIncomes) {
+        this.loadingIncomes = true;
+        this.incomesPageCounter++;
+        this.$axios.$get(
+          `/incomes/find/${this.$route.params.id}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
+        ).then(response => {
+          console.log("ho")
+          console.log(response)
+          if (response.length > 0) {
+            response.forEach(item => this.incomes.push(item));
+          } else {
+            this.stopLoadingIncomes = true
+          }
+        })
+          .catch(err => {
+            console.log(err)
+          })
+          .finally(() => {
+            this.loadingIncomes = false
+          });
+      }
     }
   },
   async fetch() {
