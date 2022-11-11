@@ -122,7 +122,7 @@
               <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
             </v-col>
             <v-col class="text-center" v-intersect="infiniteScrollingExpenses">
-              <v-progress-circular class="py-2 text-center" color="primary" indeterminate v-if="loadingExpenses"/>
+              <v-progress-circular class="py-2 text-center" color="primary" indeterminate v-if="!stopLoadingExpenses"/>
             </v-col>
           </v-row>
         </v-container>
@@ -136,7 +136,7 @@
               <IncomesExpensesTable :incomeExpense="income"/>
             </v-col>
             <v-col class="text-center" v-intersect="infiniteScrollingIncomes">
-              <v-progress-circular class="py-2" color="primary" indeterminate v-if="loadingIncomes"/>
+              <v-progress-circular class="py-2" color="primary" indeterminate v-if="!stopLoadingIncomes"/>
             </v-col>
           </v-row>
         </v-container>
@@ -162,11 +162,9 @@ export default {
       account: {},
       incomes: [],
       incomesPageCounter: 0,
-      loadingIncomes: false,
       stopLoadingIncomes: false,
       expenses: [],
       expensesPageCounter: 0,
-      loadingExpenses: false,
       stopLoadingExpenses: false,
       expenseBreakdown: [],
       incomeBreakdown: [],
@@ -210,10 +208,8 @@ export default {
       this.dateRange = [start, end];
       this.selectedDateRange = this.dateRange
     },
-    // TODO: gets called too ofter
     infiniteScrollingExpenses(entries, observer, isIntersecting) {
-      if (!this.loadingExpenses && !this.stopLoadingExpenses) {
-        this.loadingExpenses = true;
+      if (isIntersecting && !this.stopLoadingExpenses) {
         this.expensesPageCounter++;
         this.$axios.$get(
           `/expenses/find/${this.$route.params.id}`,
@@ -230,36 +226,27 @@ export default {
           .catch(err => {
             console.log(err)
           })
-          .finally(() => {
-            this.loadingExpenses = false
-          });
       }
     },
     infiniteScrollingIncomes(entries, observer, isIntersecting) {
-      setTimeout(() => {
-        if (!this.loadingIncomes && !this.stopLoadingIncomes) {
-          this.loadingIncomes = true;
-          this.incomesPageCounter++;
-          this.$axios.$get(
-            `/incomes/find/${this.$route.params.id}`,
-            {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
-          ).then(response => {
-            //console.log("ho")
-            //console.log(response)
-            if (response.length > 0) {
-              response.forEach(item => this.incomes.push(item));
-            } else {
-              this.stopLoadingIncomes = true
-            }
+      if (isIntersecting && !this.stopLoadingIncomes) {
+        this.incomesPageCounter++;
+        this.$axios.$get(
+          `/incomes/find/${this.$route.params.id}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
+        ).then(response => {
+          //console.log("ho")
+          //console.log(response)
+          if (response.length > 0) {
+            response.forEach(item => this.incomes.push(item));
+          } else {
+            this.stopLoadingIncomes = true
+          }
+        })
+          .catch(err => {
+            console.log(err)
           })
-            .catch(err => {
-              console.log(err)
-            })
-            .finally(() => {
-              this.loadingIncomes = false
-            });
-        }
-      }, 500);
+      }
     }
   },
   async fetch() {
