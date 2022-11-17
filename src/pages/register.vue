@@ -52,21 +52,12 @@
         </v-card>
       </v-row>
     </v-container>
-
-    <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-
-      <template v-slot:action="{ attrs }">
-        <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </div>
 </template>
 
 <script>
+import {useSnackbarStore} from "~/store/snackbar";
+
 export default {
   auth: false,
   layout: 'empty',
@@ -82,12 +73,6 @@ export default {
   },
   data() {
     return {
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
       form: {
         username: '',
         password: '',
@@ -111,10 +96,10 @@ export default {
         v => this.matchRule()
       ],
       emailRules: [
-      v => !!v || "Required Field",
-      v => !!v && v.length <= 128 || "Field too Long",
-      v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || "Invalid email"
-    ]
+        v => !!v || "Required Field",
+        v => !!v && v.length <= 128 || "Field too Long",
+        v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || "Invalid email"
+      ]
     };
   },
   methods: {
@@ -130,25 +115,18 @@ export default {
             }
           )
             .catch(error => {
-            this.snackbar.color = "error";
-            this.snackbar.visible = true;
-            this.snackbar.text = error.response.status === 409 ? "Username or email already exists" : "Error creating user profile"
-          })
+              this.snackbar.displayError(error.response.status === 409 ? "Username or email already exists" : "Error creating user profile")
+            })
+        } catch {
+          this.snackbar.displayError("Invalid registration data")
         }
-        catch{
-          this.snackbar.text = "Invalid registration data"
-          this.snackbar.color = "error";
-          this.snackbar.visible = true;
-        }
-      }
-      else {
-        this.snackbar.text = "Invalid registration data"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+      } else {
+        this.snackbar.displayError("Invalid registration data")
       }
     },
   },
   computed: {
+    snackbar: () => useSnackbarStore(),
     matchRule() {
       return () => (this.form.password === this.form.password2) || 'Passwords must match'
     }

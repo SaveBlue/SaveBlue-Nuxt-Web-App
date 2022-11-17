@@ -43,12 +43,12 @@
                 />
                 <v-row v-show="!edit">
                   <v-col cols="12">
-                    <v-btn type="submit" color="primary" @click="createAccount">Create Account</v-btn>
+                    <v-btn type="submit" color="primary" @click="handleCreateAccount">Create Account</v-btn>
                   </v-col>
                 </v-row>
                 <v-row v-show="edit" >
                   <v-col cols="12">
-                    <v-btn type="submit" color="primary" @click="updateAccount">Update Account</v-btn>
+                    <v-btn type="submit" color="primary" @click="handleUpdateAccount">Update Account</v-btn>
 
                     <v-btn class="my-3" type="submit" color="error" text @click="dialog=true">Delete Account</v-btn>
                   </v-col>
@@ -84,7 +84,7 @@
               <v-btn
                 color="error"
                 text
-                @click="deleteAccount"
+                @click="handleDeleteAccount"
               >
                 Yes
               </v-btn>
@@ -92,40 +92,36 @@
           </v-card>
         </v-dialog>
       </v-container>
-      <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-        {{ snackbar.text }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
     </div>
   </div>
 </template>
 
 <script>
 
+import {useAccountStore} from '@/store/account'
+import {useSnackbarStore} from "@/store/snackbar";
+import {useContext} from "@nuxtjs/composition-api";
 export default {
-  name: "AddEditAccount",
+  setup(){
+    const context = useContext()
+    return {context}
+  },
+  computed: {
+    accountStore: () => useAccountStore(),
+    snackbar: () => useSnackbarStore()
+  },
   data() {
     return {
-      dialog: false,
-      loading: this.edit,
       account: {
         name: "",
         startOfMonth: 1
       },
+      dialog: false,
+      loading: this.edit,
       nameRules: [
         v => !!v || "Required Field",
         v => !!v && v.length <= 32 || "Field too Long",
       ],
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
     }
   },
   props: {
@@ -133,9 +129,16 @@ export default {
       type: Boolean,
       default: false
     }
-
   },
-  async fetch() {
+  mounted() {
+    if(this.edit){
+      this.account.name = useAccountStore().current.name
+      this.account.startOfMonth = useAccountStore().current.startOfMonth
+      this.loading = false
+    }
+  },
+  // TODO: remove unused code
+  /*async fetch() {
     if (this.edit) {
       await this.$axios.$get(
         `/accounts/find/${this.$route.params.id}`,
@@ -147,62 +150,43 @@ export default {
         () => this.loading = false
       )
     }
-  },
+  },*/
   methods: {
-    async createAccount() {
+    async handleCreateAccount() {
       try {
-        await this.$axios.post(
-          `/accounts/${this.$auth.user._id}`,
-          this.account,
-          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-        ).then(
-          () => {
-            this.$router.push('/')
-          }
-        )
-      } catch {
-        this.snackbar.text = "Napaka"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        await this.accountStore.createAccount(this.account, this.context)
+          .then((data) => {
+            this.snackbar.displayPrimary("Account created")
+              this.$router.push('/')
+            }
+          )
+      } catch(error) {
+        this.snackbar.displayError("Account not created")
       }
-
     },
-    async updateAccount() {
+    async handleUpdateAccount() {
       try {
-        await this.$axios.put(
-          `/accounts/${this.$route.params.id}`,
-          this.account,
-          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-        ).then(
-          () => {
-            this.snackbar.text = "Account Updated"
-            this.snackbar.color = "success";
-            this.snackbar.visible = true;
-          }
-        )
-      } catch {
-        this.snackbar.text = "Napaka"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        await this.accountStore.updateAccount(this.account, this.context)
+          .then((data) => {
+              this.snackbar.displayPrimary("Account updated")
+              this.$router.push(`/account/${this.$route.params.id}`)
+            }
+          )
+      } catch(error) {
+        this.snackbar.displayError("Account not updated")
       }
-
     },
-    async deleteAccount() {
+    async handleDeleteAccount() {
       try {
-        await this.$axios.delete(
-          `/accounts/${this.$route.params.id}`,
-          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-        ).then(
-          () => {
-            this.$router.push('/')
-          }
-        )
-      } catch {
-        this.snackbar.text = "Napaka"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        await this.accountStore.deleteAccount(this.context)
+          .then(() => {
+              this.snackbar.displayPrimary("Account deleted")
+              this.$router.push('/')
+            }
+          )
+      } catch(error) {
+        this.snackbar.displayError("Account not deleted")
       }
-
     }
   }
 }

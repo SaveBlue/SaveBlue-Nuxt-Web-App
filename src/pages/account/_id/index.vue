@@ -149,6 +149,7 @@
 </template>
 
 <script>
+import {useAccountStore} from '@/store/account'
 export default {
   name: "account",
   layout: 'empty',
@@ -159,7 +160,7 @@ export default {
       endDate: "",
       dateRange: ["", ""],
       selectedDateRange: ["", ""],
-      account: {},
+      //account: {},
       incomes: [],
       incomesPageCounter: 0,
       stopLoadingIncomes: false,
@@ -170,7 +171,7 @@ export default {
       incomeBreakdown: [],
       loading: true,
       modal: false,
-      date: ""
+      date: "",
     }
   },
   methods: {
@@ -235,8 +236,6 @@ export default {
           `/incomes/find/${this.$route.params.id}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
         ).then(response => {
-          //console.log("ho")
-          //console.log(response)
           if (response.length > 0) {
             response.forEach(item => this.incomes.push(item));
           } else {
@@ -249,11 +248,17 @@ export default {
       }
     }
   },
+  computed:{
+    account: () => useAccountStore().current
+  },
+  beforeMount() {
+    useAccountStore().setCurrent()
+  },
   async fetch() {
 
     // Account details
     await this.getAccount().then(async (account) => {
-      this.account = account
+      //this.account = account
 
       // Set date range
       await this.setInitialDateRange()

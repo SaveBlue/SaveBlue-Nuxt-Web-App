@@ -34,21 +34,12 @@
         </v-card>
       </v-row>
     </v-container>
-
-    <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-
-      <template v-slot:action="{ attrs }">
-        <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </div>
 </template>
 
 <script>
+
+import {useSnackbarStore} from "~/store/snackbar";
 
 export default {
   name: 'Login',
@@ -65,12 +56,6 @@ export default {
   },
   data() {
     return {
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
       form: {
         username: '',
         password: ''
@@ -79,6 +64,9 @@ export default {
       loading: false
     };
   },
+  computed:{
+    snackbar: () => useSnackbarStore()
+  },
   methods: {
     async userLogin() {
       try {
@@ -86,13 +74,11 @@ export default {
         let response = await this.$auth.loginWith('local', { data: this.form });
       } catch (err) {
         if(err.message.includes("401")){
-          this.snackbar.text = "Wrong Username or Password"
+          this.snackbar.displayError("Wrong Username or Password")
         }
         else {
-          this.snackbar.text = "Error"
+          this.snackbar.displayError("Error")
         }
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
       }
       finally {
         this.loading = false;

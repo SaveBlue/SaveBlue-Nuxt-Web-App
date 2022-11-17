@@ -2,6 +2,7 @@
   <v-app dark>
     <v-main>
       <Nuxt style="height: 100%"/>
+      <AppSnackbar/>
     </v-main>
   </v-app>
 </template>

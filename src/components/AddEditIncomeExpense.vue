@@ -40,7 +40,7 @@
               <div v-if="isExpense">
                 <v-select
                   v-model="incomeExpense.category1"
-                  :items="primaryCategoriesExpense"
+                  :items="categoriesExpense.map(c => c.category1)"
                   label="Primary Category"
                   prepend-icon="mdi-numeric-1-circle-outline"
                   :rules="requiredRules"
@@ -49,7 +49,8 @@
                 <v-select
                   v-show="isExpense"
                   v-model="incomeExpense.category2"
-                  :items="incomeExpense.category1 === 'Personal' ? secondaryCategories1 : incomeExpense.category1 === 'Food & Drinks' ? secondaryCategories2 : incomeExpense.category1 === 'Home & Utilities' ? secondaryCategories3 : incomeExpense.category1 === 'Transport' ? secondaryCategories4 : incomeExpense.category1 === 'Leisure' ? secondaryCategories5 : incomeExpense.category1 === 'Health' ? secondaryCategories6 : incomeExpense.category1 === 'Finance' ? secondaryCategories7 : []"
+                  :disabled="!incomeExpense.category1"
+                  :items="incomeExpense.category1 ? categoriesExpense.filter(c => c.category1 === incomeExpense.category1)[0].category2 : []"
                   label="Secondary Category"
                   prepend-icon="mdi-numeric-2-circle-outline"
                   :rules="requiredRules"
@@ -59,7 +60,7 @@
               <div v-else>
                 <v-select
                   v-model="incomeExpense.category1"
-                  :items="primaryCategoriesIncome"
+                  :items="categoriesIncome.map(c => c.category1)"
                   label="Primary Category"
                   prepend-icon="mdi-numeric-1-circle-outline"
                   :rules="requiredRules"
@@ -142,20 +143,15 @@
           </v-card-actions>
         </v-card>
       </v-container>
-
-      <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-        {{ snackbar.text }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
     </div>
   </div>
 </template>
 
 <script>
+import {useSnackbarStore} from '@/store/snackbar'
+import {useCategoryStore} from "~/store/category";
+import {useAccountStore} from "~/store/account";
+
 export default {
   name: "add-income-expense",
   data() {
@@ -163,15 +159,15 @@ export default {
       modal: false,
       modal2: false,
       loading: this.edit,
-      primaryCategoriesIncome: ["Salary & Wage", "Assets", "Student Work", "Funds Transfer", "Other"],
-      primaryCategoriesExpense: ["Personal", "Food & Drinks", "Home & Utilities", "Transport", "Leisure", "Health", "Finance"],
-      secondaryCategories1: ["Clothing & Footwear", "Personal Hygiene", "Personal Care Services", "Subscriptions", "Consumer Electronics", "Education"],
-      secondaryCategories2: ["Groceries", "Restaurants", "Coffee & Tea", "Alcohol"],
-      secondaryCategories3: ["Bills", "Rent", "Household", "Goods", "Maintenance"],
-      secondaryCategories4: ["Public transport", "Taxi", "Tolls", "Parking", "Personal vehicle", "Gas"],
-      secondaryCategories5: ["Sport", "Entertainment", "Culture", "Holidays"],
-      secondaryCategories6: ["Medicine & supplements", "Medical services & diagnostics"],
-      secondaryCategories7: ["Insurance", "Taxes", "Debts", "Funds Transfer"],
+      //primaryCategoriesIncome: ["Salary & Wage", "Assets", "Student Work", "Funds Transfer", "Other"],
+      //primaryCategoriesExpense: ["Personal", "Food & Drinks", "Home & Utilities", "Transport", "Leisure", "Health", "Finance"],
+      //secondaryCategories1: ["Clothing & Footwear", "Personal Hygiene", "Personal Care Services", "Subscriptions", "Consumer Electronics", "Education"],
+      //secondaryCategories2: ["Groceries", "Restaurants", "Coffee & Tea", "Alcohol"],
+      //secondaryCategories3: ["Bills", "Rent", "Household", "Goods", "Maintenance"],
+      //secondaryCategories4: ["Public transport", "Taxi", "Tolls", "Parking", "Personal vehicle", "Gas"],
+      //secondaryCategories5: ["Sport", "Entertainment", "Culture", "Holidays"],
+      //secondaryCategories6: ["Medicine & supplements", "Medical services & diagnostics"],
+      //secondaryCategories7: ["Insurance", "Taxes", "Debts", "Funds Transfer"],
       //date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       incomeExpense: {
         amount: "",
@@ -181,7 +177,7 @@ export default {
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         account: "",
       },
-      accounts: [],
+      //accounts: [],
       requiredRules: [
         v => !!v || "Required Field",
       ],
@@ -193,12 +189,6 @@ export default {
       descriptionRules: [
         v => v.length <= 1024 || "Description too long."
       ],
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
     }
   },
   props: {
@@ -208,7 +198,7 @@ export default {
       default: false
     }
   },
-  async fetch() {
+  /*async fetch() {
     await this.$axios.$get(
       `/accounts/${this.$auth.user._id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
@@ -231,6 +221,20 @@ export default {
       )
     }
 
+  },*/
+  computed: {
+    accounts: () => useAccountStore().accounts,
+    current: () => useAccountStore().current,
+    snackbar: () => useSnackbarStore(),
+    categoriesIncome: () => useCategoryStore().income,
+    categoriesExpense: () => useCategoryStore().expense
+  },
+  mounted() {
+    // TODO: move
+    useCategoryStore().fetchIncome()
+    useCategoryStore().fetchExpense()
+
+    this.current && (this.incomeExpense.account = this.current.name)
   },
   methods: {
     async createIncomeExpense() {
@@ -247,18 +251,15 @@ export default {
             {headers: {"x-access-token": this.$auth.strategy.token.get()}}
           ).then(
             () => {
-            this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
+              this.snackbar.displayPrimary("Created")
+              this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
             }
           )
         } catch {
-          this.snackbar.text = "Error"
-          this.snackbar.color = "error";
-          this.snackbar.visible = true;
+          this.snackbar.displayError("Error")
         }
       } else {
-        this.snackbar.text = "Form not valid"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        this.snackbar.displayError("Form not valid")
       }
     },
     async updateIncomeExpense() {
@@ -273,15 +274,12 @@ export default {
           {headers: {"x-access-token": this.$auth.strategy.token.get()}}
         ).then(
           () => {
-            this.snackbar.text = "Updated"
-            this.snackbar.color = "success";
-            this.snackbar.visible = true;
+            this.snackbar.displaySuccess("Updated")
+            this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
           }
         )
       } catch {
-        this.snackbar.text = "Error"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        this.snackbar.displayError("Error")
       }
     },
     async deleteIncomeExpense() {
@@ -291,16 +289,15 @@ export default {
           {headers: {"x-access-token": this.$auth.strategy.token.get()}}
         ).then(
           () => {
+            this.snackbar.displayPrimary("Deleted")
             this.$router.back()
           }
         )
       } catch {
-        this.snackbar.text = "Error"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+        this.snackbar.displayError("Error")
       }
     },
-    returnSecondaryCategory() {
+    /*returnSecondaryCategory() {
       let primary = this.incomeExpense.category1
       switch (primary) {
         case "Personal":
@@ -318,7 +315,7 @@ export default {
         case "Finance":
           return this.secondaryCategories7;
       }
-    }
+    }*/
   },
   created() {
     this.incomeExpense.amount = this.amount

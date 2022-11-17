@@ -49,6 +49,9 @@
     <!-- Footer -->
     <Footer/>
 
+    <!-- Snackbar -->
+    <AppSnackbar/>
+
   </v-app>
 </template>
 
