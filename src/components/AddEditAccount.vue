@@ -1,11 +1,13 @@
 <template>
   <div>
-    <!-- progress loader -->
+    <!-- Loader -->
     <v-row align="center" justify="center" v-if="loading" style="height: 100vh">
       <v-col cols="2">
         <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
       </v-col>
     </v-row>
+
+    <!-- Content -->
     <div v-else>
       <v-app-bar
         fixed
@@ -17,8 +19,8 @@
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
 
-        <v-toolbar-title v-if="edit">{{ account.name }}</v-toolbar-title>
-        <v-toolbar-title v-else> New Account</v-toolbar-title>
+        <v-toolbar-title v-if="edit">{{ currentAccount.name }}</v-toolbar-title>
+        <v-toolbar-title v-else>New Account</v-toolbar-title>
 
       </v-app-bar>
       <v-container>
@@ -104,10 +106,12 @@ import {useContext} from "@nuxtjs/composition-api";
 export default {
   setup(){
     const context = useContext()
+
     return {context}
   },
   computed: {
-    accountStore: () => useAccountStore(),
+    currentAccount: () => useAccountStore().current,
+    loading: () => useAccountStore().loading,
     snackbar: () => useSnackbarStore()
   },
   data() {
@@ -117,7 +121,7 @@ export default {
         startOfMonth: 1
       },
       dialog: false,
-      loading: this.edit,
+      //loading: this.edit,
       nameRules: [
         v => !!v || "Required Field",
         v => !!v && v.length <= 32 || "Field too Long",
@@ -130,34 +134,25 @@ export default {
       default: false
     }
   },
-  mounted() {
-    if(this.edit){
-      this.account.name = useAccountStore().current.name
-      this.account.startOfMonth = useAccountStore().current.startOfMonth
-      this.loading = false
+  watch:{
+    // Handles page refreshes
+    currentAccount(newValue){
+      (typeof newValue !== "undefined") && (this.account = newValue)
     }
   },
-  // TODO: remove unused code
-  /*async fetch() {
-    if (this.edit) {
-      await this.$axios.$get(
-        `/accounts/find/${this.$route.params.id}`,
-        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-      ).then(response => {
-        this.account.name = response.name
-        this.account.startOfMonth = response.startOfMonth
-      }).finally(
-        () => this.loading = false
-      )
+  mounted() {
+    // Handles route changes
+    if(this.edit){
+      (typeof this.currentAccount !== "undefined") && (this.account = this.currentAccount)
     }
-  },*/
+  },
   methods: {
     async handleCreateAccount() {
       try {
-        await this.accountStore.createAccount(this.account, this.context)
+        await useAccountStore().createAccount(this.account, this.context)
           .then((data) => {
-            this.snackbar.displayPrimary("Account created")
               this.$router.push('/')
+              this.snackbar.displayPrimary("Account created")
             }
           )
       } catch(error) {
@@ -166,10 +161,10 @@ export default {
     },
     async handleUpdateAccount() {
       try {
-        await this.accountStore.updateAccount(this.account, this.context)
+        await useAccountStore().updateAccount(this.account, this.context)
           .then((data) => {
-              this.snackbar.displayPrimary("Account updated")
               this.$router.push(`/account/${this.$route.params.id}`)
+              this.snackbar.displayPrimary("Account updated")
             }
           )
       } catch(error) {
@@ -178,7 +173,7 @@ export default {
     },
     async handleDeleteAccount() {
       try {
-        await this.accountStore.deleteAccount(this.context)
+        await useAccountStore().deleteAccount(this.context)
           .then(() => {
               this.snackbar.displayPrimary("Account deleted")
               this.$router.push('/')

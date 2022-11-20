@@ -8,8 +8,18 @@
 </template>
 
 <script>
+import {useAccountStore} from "@/store/account";
+import {useContext} from "@nuxtjs/composition-api";
+
 export default {
   name: "empty",
+  setup(){
+    const context = useContext()
+    const accountStore = useAccountStore()
+
+    accountStore.fetchAccounts(context)
+    return {}
+  },
   mounted() {
     if (
       window.matchMedia &&

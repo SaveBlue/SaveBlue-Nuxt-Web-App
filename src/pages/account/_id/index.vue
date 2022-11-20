@@ -10,7 +10,7 @@
         <v-icon>mdi-chevron-left</v-icon>
       </v-app-bar-nav-icon>
 
-      <v-toolbar-title>{{ account.name }}</v-toolbar-title>
+      <v-toolbar-title v-if="!loading">{{ account.name }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -35,22 +35,17 @@
       <!-- Account Overview -->
       <v-tab-item>
         <v-container>
-          <!-- Loaders -->
           <v-row align="center" justify="center">
-            <v-col v-if="loading" cols="12">
-              <v-card height="190" class="py-3">
-                <v-skeleton-loader type="image" height="100%"/>
-              </v-card>
-              <v-card height="190" class="py-3">
-                <v-skeleton-loader type="image" height="100%"/>
-              </v-card>
-            </v-col>
             <!-- Overview -->
-            <v-col v-else cols="12">
+            <v-col cols="12">
               <AccountOverviewCard :account="account"/>
             </v-col>
             <!-- Analytics -->
-            <v-col cols="12">
+            <!-- TODO: make component -->
+            <v-card v-if="!account" height="190" class="py-3">
+              <v-skeleton-loader type="image" height="100%"/>
+            </v-card>
+            <v-col v-else cols="12">
               <v-card class="mx-auto text-center">
                 <v-card-title class="justify-center">Analytics</v-card-title>
                 <v-card-text>
@@ -65,8 +60,8 @@
                       <v-combobox
                         append-icon=""
                         v-model="selectedDateRange"
+                        item
                         multiple
-                        chips
                         small-chips
                         label="Time Period"
                         prepend-inner-icon="mdi-calendar"
@@ -75,7 +70,8 @@
                         v-on="on"
                         dense
                         tabindex="2"
-                      ></v-combobox>
+
+                      />
                     </template>
                     <v-date-picker
                       v-model="selectedDateRange"
@@ -151,7 +147,6 @@
 <script>
 import {useAccountStore} from '@/store/account'
 export default {
-  name: "account",
   layout: 'empty',
   data() {
     return {
@@ -169,7 +164,7 @@ export default {
       stopLoadingExpenses: false,
       expenseBreakdown: [],
       incomeBreakdown: [],
-      loading: true,
+      //loading: true,
       modal: false,
       date: "",
     }
@@ -249,19 +244,17 @@ export default {
     }
   },
   computed:{
-    account: () => useAccountStore().current
-  },
-  beforeMount() {
-    useAccountStore().setCurrent()
+    account: () => useAccountStore().current,
+    loading: () => useAccountStore().loading,
   },
   async fetch() {
 
     // Account details
-    await this.getAccount().then(async (account) => {
+    //await this.getAccount().then(async (account) => {
       //this.account = account
 
       // Set date range
-      await this.setInitialDateRange()
+      //await this.setInitialDateRange()
 
       // Expense breakdown
       /*this.getExpenseBreakdown().then(breakdown => {
@@ -272,24 +265,24 @@ export default {
       this.getIncomeBreakdown().then(breakdown => {
         this.incomeBreakdown = breakdown
       })*/
-    }).finally(() => {
-      this.loading = false
-    });
+    //}).finally(() => {
+      //this.loading = false
+    //});
 
     // Account incomes
-    this.incomes = await this.$axios.$get(
+    /*this.incomes = await this.$axios.$get(
       `/incomes/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    );
+    );*/
 
     // Account expenses
-    this.expenses = await this.$axios.$get(
+    /*this.expenses = await this.$axios.$get(
       `/expenses/find/${this.$route.params.id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    );
+    );*/
   },
   watch: {
-    dateRange: function (val) {
+    /*dateRange: function (val) {
 
       // TODO: make more efficient
       // Order dates
@@ -313,7 +306,7 @@ export default {
       this.getIncomeBreakdown().then(breakdown => {
         this.incomeBreakdown = breakdown
       })
-    }
+    }*/
   }
 }
 </script>
