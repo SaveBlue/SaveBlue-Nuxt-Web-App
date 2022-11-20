@@ -17,6 +17,7 @@
                 label="Username"
                 prepend-icon="mdi-account-circle"
                 :rules="usernameRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.email"
@@ -24,6 +25,7 @@
                 prepend-icon="mdi-email"
                 label="Email"
                 :rules="emailRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password"
@@ -33,6 +35,7 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
                 :rules="passwordRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password2"
@@ -42,10 +45,13 @@
                 :append-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword2 = !showPassword2"
                 :rules="password2Rules"
+                :disabled="loading"
               />
               <v-card-actions>
                 <v-btn type="submit" color="primary" :loading="loading" :disabled="loading">Register</v-btn>
-                <v-btn color="primary" text absolute right to="register" @click="$router.push('login')">Back</v-btn>
+                <v-btn color="primary" text absolute right to="register" @click="$router.push('login')"
+                       :disabled="loading">Back
+                </v-btn>
               </v-card-actions>
             </v-form>
           </v-card-text>
@@ -105,6 +111,7 @@ export default {
   methods: {
     async userRegister() {
       if (this.$refs.form.validate()) {
+        this.loading = true
         try {
           await this.$axios.post(
             '/auth/register',
@@ -118,7 +125,10 @@ export default {
               this.snackbar.displayError(error.response.status === 409 ? "Username or email already exists" : "Error creating user profile")
             })
         } catch {
-          this.snackbar.displayError("Invalid registration data")
+          this.snackbar.displayError("Error")
+        }
+        finally {
+          this.loading = false
         }
       } else {
         this.snackbar.displayError("Invalid registration data")

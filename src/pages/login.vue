@@ -15,6 +15,7 @@
                 v-model="form.username"
                 label="Username"
                 prepend-icon="mdi-account-circle"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password"
@@ -24,10 +25,11 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
                 autocomplete="on"
+                :disabled="loading"
               />
               <v-card-actions>
                 <v-btn type="submit" color="primary" :loading="loading" :disabled="loading">Login</v-btn>
-                <v-btn color="primary" text absolute right to="register">Register</v-btn>
+                <v-btn color="primary" text absolute right to="register" :disabled="loading">Register</v-btn>
               </v-card-actions>
             </v-form>
           </v-card-text>
@@ -84,20 +86,7 @@ export default {
         this.loading = false;
       }
     }
-  },
-    /*...mapActions({
-      login: 'auth/login'
-    }),
-    submit() {
-      this.login(this.form).then(() => {
-        this.$router.replace({name: 'Dashboard'})
-      }).catch(() => {
-        this.snackbar.text = "Napačno uporabniško ime ali geslo"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
-      })
-    }
-  }*/
+  }
 }
 </script>
 
