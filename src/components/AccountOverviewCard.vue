@@ -1,7 +1,7 @@
 <template>
 
   <!-- Loader -->
-    <v-card v-if="!account" height="190" class="py-3">
+    <v-card v-if="loading" height="190" class="py-3">
       <v-skeleton-loader type="image" height="100%"/>
     </v-card>
 
@@ -30,11 +30,13 @@
 </template>
 
 <script>
+import {useAccountStore} from "@/store/account";
 
 export default {
   name: "AccountOverviewCard",
-  props:{
-    account: Object
+  computed:{
+    account: () => useAccountStore().current,
+    loading: () => useAccountStore().loading,
   }
 }
 </script>

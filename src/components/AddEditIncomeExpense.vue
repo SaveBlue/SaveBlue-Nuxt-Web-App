@@ -1,11 +1,13 @@
 <template>
   <div>
-    <!-- progress loader -->
+    <!-- Loader -->
     <v-row align="center" justify="center" v-if="loading" style="height: 100vh">
       <v-col cols="2">
         <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
       </v-col>
     </v-row>
+
+    <!-- Content -->
     <div v-else>
       <v-app-bar
         fixed
@@ -13,6 +15,7 @@
         dark
         app
       >
+        <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
         <v-app-bar-nav-icon @click="$nuxt.context.from.path.includes('account') ? $router.back() : $router.push('/')">
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
@@ -47,7 +50,7 @@
                   required
                 ></v-select>
                 <v-select
-                  v-show="isExpense"
+                  v-if="isExpense"
                   v-model="incomeExpense.category2"
                   :disabled="!incomeExpense.category1"
                   :items="incomeExpense.category1 ? categoriesExpense.filter(c => c.category1 === incomeExpense.category1)[0].category2 : []"
@@ -159,22 +162,12 @@ export default {
       modal: false,
       modal2: false,
       loading: this.edit,
-      //primaryCategoriesIncome: ["Salary & Wage", "Assets", "Student Work", "Funds Transfer", "Other"],
-      //primaryCategoriesExpense: ["Personal", "Food & Drinks", "Home & Utilities", "Transport", "Leisure", "Health", "Finance"],
-      //secondaryCategories1: ["Clothing & Footwear", "Personal Hygiene", "Personal Care Services", "Subscriptions", "Consumer Electronics", "Education"],
-      //secondaryCategories2: ["Groceries", "Restaurants", "Coffee & Tea", "Alcohol"],
-      //secondaryCategories3: ["Bills", "Rent", "Household", "Goods", "Maintenance"],
-      //secondaryCategories4: ["Public transport", "Taxi", "Tolls", "Parking", "Personal vehicle", "Gas"],
-      //secondaryCategories5: ["Sport", "Entertainment", "Culture", "Holidays"],
-      //secondaryCategories6: ["Medicine & supplements", "Medical services & diagnostics"],
-      //secondaryCategories7: ["Insurance", "Taxes", "Debts", "Funds Transfer"],
-      //date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       incomeExpense: {
         amount: "",
         category1: "",
         category2: "",
         description: "",
-        date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
         account: "",
       },
       //accounts: [],
@@ -198,13 +191,15 @@ export default {
       default: false
     }
   },
-  /*async fetch() {
-    await this.$axios.$get(
+  async fetch() {
+    /*await this.$axios.$get(
       `/accounts/${this.$auth.user._id}`,
       {headers: {"x-access-token": this.$auth.strategy.token.get()}}
     ).then(response => {
       this.accounts = response
-    })
+    })*/
+    // TODO: is this hack?
+    await useAccountStore()
 
     if (this.edit) {
       await this.$axios.$get(
@@ -221,7 +216,7 @@ export default {
       )
     }
 
-  },*/
+  },
   computed: {
     accounts: () => useAccountStore().accounts,
     current: () => useAccountStore().current,
@@ -230,11 +225,15 @@ export default {
     categoriesExpense: () => useCategoryStore().expense
   },
   mounted() {
-    // TODO: move
-    useCategoryStore().fetchIncome()
-    useCategoryStore().fetchExpense()
-
-    this.current && (this.incomeExpense.account = this.current.name)
+    if(this.current){
+      this.incomeExpense.account = this.current.name
+    }
+  },
+  watch: {
+    // Handles page refreshes
+    current(newValue) {
+      (typeof newValue !== "undefined") && (console.log(newValue))
+    }
   },
   methods: {
     async createIncomeExpense() {
@@ -252,7 +251,7 @@ export default {
           ).then(
             () => {
               this.snackbar.displayPrimary("Created")
-              this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
+              this.current ? this.$router.back() : this.$router.push('/')
             }
           )
         } catch {
@@ -275,7 +274,7 @@ export default {
         ).then(
           () => {
             this.snackbar.displaySuccess("Updated")
-            this.$nuxt.context.from.path.includes('account') ? this.$router.back() : this.$router.push('/')
+            this.current ? this.$router.back() : this.$router.push('/')
           }
         )
       } catch {
@@ -296,26 +295,7 @@ export default {
       } catch {
         this.snackbar.displayError("Error")
       }
-    },
-    /*returnSecondaryCategory() {
-      let primary = this.incomeExpense.category1
-      switch (primary) {
-        case "Personal":
-          return this.secondaryCategories1;
-        case "Food & Drinks":
-          return this.secondaryCategories2;
-        case "Home & Utilities":
-          return this.secondaryCategories3;
-        case "Transport":
-          return this.secondaryCategories4;
-        case "Leisure":
-          return this.secondaryCategories5;
-        case "Health":
-          return this.secondaryCategories6;
-        case "Finance":
-          return this.secondaryCategories7;
-      }
-    }*/
+    }
   },
   created() {
     this.incomeExpense.amount = this.amount

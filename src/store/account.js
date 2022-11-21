@@ -3,20 +3,37 @@ import {defineStore} from 'pinia'
 export const useAccountStore = defineStore('accountStore', {
   state: () => ({
     accounts: [],
-    loading: false,
+    loading: 0,
     current: undefined
   }),
   getters: {
     count: (state) => state.accounts.length,
   },
   actions: {
-    setCurrent(context) {
-      const {route} = context
-      this.current = this.accounts.find(a => a._id === route.value.params.id)
-      //console.log(this.current)
+    async fetchCurrent(context) {
+      const {$axios, $auth, params} = context
+      if (params.value.id){
+        this.loading++
+        try {
+          await $axios.$get(
+            `/accounts/find/${params.value.id}`,
+            {headers: {"x-access-token": $auth.strategy.token.get()}})
+            .then((res) => {
+              //console.log(res)
+              this.current = res
+            })
+        } catch (error) {
+          console.log(error)
+        } finally {
+          this.loading--
+        }
+      }
+    },
+    resetCurrent() {
+      this.current = undefined
     },
     async fetchAccounts(context) {
-      this.loading = true
+      this.loading++
       try {
         const {$axios, $auth} = context
         await $axios.get(
@@ -25,19 +42,18 @@ export const useAccountStore = defineStore('accountStore', {
           .then((res) => {
             //console.log(res)
             this.accounts = res.data
-            this.setCurrent(context)
           })
-          /*.catch((e)=>{
-            console.log(e)
-          })*/
+        /*.catch((e)=>{
+          console.log(e)
+        })*/
       } catch (error) {
         console.log(error)
       } finally {
-        this.loading = false
+        this.loading--
       }
     },
     async createAccount(account, context) {
-      this.loading = true
+      this.loading++
       return new Promise((resolve, reject) => {
         try {
           const {$axios, $auth} = context
@@ -52,12 +68,12 @@ export const useAccountStore = defineStore('accountStore', {
         } catch (error) {
           reject(error)
         } finally {
-          this.loading = false
+          this.loading--
         }
       });
     },
     async updateAccount(accountData, context) {
-      this.loading = true
+      this.loading++
       return new Promise((resolve, reject) => {
         try {
           const {$axios, $auth} = context
@@ -73,12 +89,12 @@ export const useAccountStore = defineStore('accountStore', {
         } catch (error) {
           reject(error)
         } finally {
-          this.loading = false
+          this.loading--
         }
       });
     },
     deleteAccount(context) {
-      this.loading = true
+      this.loading++
       return new Promise((resolve, reject) => {
         try {
           const {$axios, $auth} = context
@@ -92,7 +108,7 @@ export const useAccountStore = defineStore('accountStore', {
         } catch (error) {
           reject(error)
         } finally {
-          this.loading = false
+          this.loading--
         }
       });
     }

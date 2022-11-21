@@ -175,8 +175,8 @@ export default {
       try {
         await useAccountStore().deleteAccount(this.context)
           .then(() => {
-              this.snackbar.displayPrimary("Account deleted")
-              this.$router.push('/')
+            this.$router.push('/')
+            this.snackbar.displayPrimary("Account deleted")
             }
           )
       } catch(error) {

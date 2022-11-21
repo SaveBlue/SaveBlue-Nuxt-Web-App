@@ -1,10 +1,11 @@
 <template>
   <v-container>
     <v-row align="center">
-      <v-col v-show="loading" cols="12" sm="6" v-for="i in 2" :key="i">
-        <account-card-skeleton/>
+      <v-col v-if="loading" cols="12" sm="6">
+        <AccountCardSkeleton/>
+        <AccountCardSkeleton/>
       </v-col>
-      <v-col cols="12" sm="6" v-for="account in accounts" :key="account._id">
+      <v-col v-else cols="12" sm="6" v-for="account in accounts" :key="account._id">
         <AccountCard :account="account"/>
       </v-col>
       <v-col cols="12" sm="6">
@@ -18,6 +19,9 @@
 <script>
 import {useAccountStore} from '@/store/account'
 export default {
+  created() {
+    useAccountStore().resetCurrent()
+  },
   computed:{
     loading: () => useAccountStore().loading,
     accounts: () => useAccountStore().accounts
