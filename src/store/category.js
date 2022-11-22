@@ -4,10 +4,12 @@ import {useContext} from "@nuxtjs/composition-api";
 export const useCategoryStore = defineStore('categoryStore', {
   state: () => ({
     income: [],
-    expense: []
+    expense: [],
+    loading: 0
   }),
   actions: {
     async fetchIncome() {
+      this.loading++
       try {
         const {$axios, $auth} = useContext()
         const res = await $axios.get(
@@ -17,9 +19,13 @@ export const useCategoryStore = defineStore('categoryStore', {
       } catch (error) {
         console.log(error)
       }
+      finally {
+        this.loading--
+      }
     },
     async fetchExpense() {
       try {
+        this.loading++
         const {$axios, $auth} = useContext()
         const res = await $axios.get(
           `/expenses`,
@@ -27,6 +33,9 @@ export const useCategoryStore = defineStore('categoryStore', {
         this.expense = res.data
       } catch (error) {
         console.log(error)
+      }
+      finally {
+        this.loading--
       }
     },
   }

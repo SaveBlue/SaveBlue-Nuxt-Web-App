@@ -53,7 +53,7 @@
       <v-tab-item>
         <v-container>
           <v-row class="pt-1" align="center" justify="center">
-            <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._id">
+            <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._idA">
               <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
             </v-col>
             <v-col class="text-center" v-intersect="infiniteScrollingExpenses">
@@ -99,11 +99,24 @@ export default {
     }
   },
   methods: {
+    async loadData(){
+      // Account incomes
+      this.incomes = await this.$axios.$get(
+        `/incomes/find/${this.$route.params.idA}`,
+        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+      );
+
+      // Account expenses
+      this.expenses = await this.$axios.$get(
+        `/expenses/find/${this.$route.params.idA}`,
+        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+      )
+    },
     infiniteScrollingExpenses(entries, observer, isIntersecting) {
       if (isIntersecting && !this.stopLoadingExpenses) {
         this.expensesPageCounter++;
         this.$axios.$get(
-          `/expenses/find/${this.$route.params.id}`,
+          `/expenses/find/${this.$route.params.idA}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.expensesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -121,7 +134,7 @@ export default {
       if (isIntersecting && !this.stopLoadingIncomes) {
         this.incomesPageCounter++;
         this.$axios.$get(
-          `/incomes/find/${this.$route.params.id}`,
+          `/incomes/find/${this.$route.params.idA}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -138,22 +151,22 @@ export default {
   },
   computed:{
     account: () => useAccountStore().current,
-    loading: () => useAccountStore().loading,
+    loading: () => useAccountStore().getLoading,
   },
-  async fetch() {
-
-    // Account incomes
-    this.incomes = await this.$axios.$get(
-      `/incomes/find/${this.$route.params.id}`,
-      {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    );
-
-    // Account expenses
-    this.expenses = await this.$axios.$get(
-      `/expenses/find/${this.$route.params.id}`,
-      {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    )
+  async mounted() {
+    // Change route
+    if (!this.loading){
+      await this.loadData()
+    }
   },
+  watch:{
+    // Refresh page
+    async loading(newValue, oldValue){
+      if(oldValue && !newValue){
+        await this.loadData()
+      }
+    }
+  }
 }
 </script>
 

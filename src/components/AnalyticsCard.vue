@@ -61,9 +61,9 @@
       </v-dialog>
 
       <!-- Expense Breakdown -->
-      <IncomeExpenseBreakdown :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown"/>
+      <IncomeExpenseBreakdown v-if="showGraphs" :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown"/>
       <!-- Income Breakdown -->
-      <IncomeExpenseBreakdown :incomeExpenseBreakdown="incomeBreakdown"/>
+      <IncomeExpenseBreakdown v-if="showGraphs" :incomeExpenseBreakdown="incomeBreakdown"/>
 
     </v-card-text>
   </v-card>
@@ -74,6 +74,7 @@
 import {useAccountStore} from "@/store/account";
 
 export default {
+  name: "AnalyticsCard",
   data() {
     return {
       dateRange: ["", ""],
@@ -81,28 +82,29 @@ export default {
       modal: false,
       expenseBreakdown: [],
       incomeBreakdown: [],
+      showGraphs: false
     }
   },
   computed:{
     account: () => useAccountStore().current,
     loading: () => useAccountStore().loading,
   },
-  async fetch() {
-
-    // Set date range
-    await this.setInitialDateRange()
-
-    // Expense breakdown
-    this.getExpenseBreakdown().then(breakdown => {
-      this.expenseBreakdown = breakdown
-    })
-
-    // Income breakdown
-    this.getIncomeBreakdown().then(breakdown => {
-      this.incomeBreakdown = breakdown
-    })
-  },
   methods: {
+    async loadData(){
+
+      // Set date range
+      await this.setInitialDateRange()
+
+      // Expense breakdown
+      this.getExpenseBreakdown().then(breakdown => {
+        this.expenseBreakdown = breakdown
+      })
+
+      // Income breakdown
+      this.getIncomeBreakdown().then(breakdown => {
+        this.incomeBreakdown = breakdown
+      })
+    },
     getExpenseBreakdown() {
       return this.$axios.$get(
         `/expenses/breakdown/${this.account._id}`,
@@ -132,9 +134,23 @@ export default {
       this.selectedDateRange = this.dateRange
     },
   },
+  async fetch() {
+    // Change route
+    if (!this.loading){
+      await this.loadData()
+    }
+  },
   watch: {
-    dateRange: function (val) {
+    // Refresh page
+    async loading(newValue, oldValue){
+      if(oldValue && !newValue){
+        await this.loadData()
+      }
+    },
 
+    dateRange: async function(val) {
+
+      this.showGraphs = false
       // TODO: make more efficient
       // Order dates
       let start = val[0]
@@ -149,14 +165,12 @@ export default {
       }
 
       // Expense breakdown
-      this.getExpenseBreakdown().then(breakdown => {
-        this.expenseBreakdown = breakdown
-      })
+      this.expenseBreakdown = await this.getExpenseBreakdown()
 
       // Income breakdown
-      this.getIncomeBreakdown().then(breakdown => {
-        this.incomeBreakdown = breakdown
-      })
+      this.incomeBreakdown = await this.getIncomeBreakdown()
+
+      this.showGraphs = true
     }
   }
 }

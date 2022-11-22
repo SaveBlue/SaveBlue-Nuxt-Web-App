@@ -7,16 +7,18 @@ export const useAccountStore = defineStore('accountStore', {
     current: undefined
   }),
   getters: {
+    getLoading: (state) => !!(state.loading),
     count: (state) => state.accounts.length,
   },
   actions: {
     async fetchCurrent(context) {
       const {$axios, $auth, params} = context
-      if (params.value.id){
+      console.log(params)
+      if (params.value.idA){
         this.loading++
         try {
           await $axios.$get(
-            `/accounts/find/${params.value.id}`,
+            `/accounts/find/${params.value.idA}`,
             {headers: {"x-access-token": $auth.strategy.token.get()}})
             .then((res) => {
               //console.log(res)

@@ -135,14 +135,16 @@ export default {
     }
   },
   watch:{
-    // Handles page refreshes
-    currentAccount(newValue){
-      (typeof newValue !== "undefined") && (this.account = newValue)
+    // Handle page refreshes
+    loading(newValue, oldValue) {
+      if (this.edit && oldValue && !newValue) {
+        this.account = this.currentAccount
+      }
     }
   },
   mounted() {
-    // Handles route changes
-    if(this.edit){
+    // Handle route changes
+    if(this.edit && !this.loading){
       (typeof this.currentAccount !== "undefined") && (this.account = this.currentAccount)
     }
   },
@@ -163,7 +165,7 @@ export default {
       try {
         await useAccountStore().updateAccount(this.account, this.context)
           .then((data) => {
-              this.$router.push(`/account/${this.$route.params.id}`)
+              this.$router.push(`/account/${this.$route.params.idA}`)
               this.snackbar.displayPrimary("Account updated")
             }
           )

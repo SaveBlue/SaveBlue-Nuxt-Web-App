@@ -1,152 +1,151 @@
 <template>
-  <div>
-    <!-- Loader -->
-    <v-row align="center" justify="center" v-if="loading" style="height: 100vh">
-      <v-col cols="2">
-        <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
-      </v-col>
-    </v-row>
 
-    <!-- Content -->
-    <div v-else>
-      <v-app-bar
-        fixed
-        color="primary"
-        dark
-        app
-      >
-        <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
-        <v-app-bar-nav-icon @click="$nuxt.context.from.path.includes('account') ? $router.back() : $router.push('/')">
-          <v-icon>mdi-close</v-icon>
-        </v-app-bar-nav-icon>
+  <!-- Loader -->
+  <v-row align="center" justify="center" v-if="loading" style="height: 100vh">
+    <v-col cols="2">
+      <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
+    </v-col>
+  </v-row>
 
-        <v-toolbar-title>
-          <span v-if="edit">Edit</span>
-          <span v-else>Add</span>
-          <span v-if="isExpense">Expense</span>
-          <span v-else>Income</span>
-        </v-toolbar-title>
+  <!-- Content -->
+  <div v-else>
+    <v-app-bar
+      fixed
+      color="primary"
+      dark
+      app
+    >
+      <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
+      <v-app-bar-nav-icon @click="$nuxt.context.from.path.includes('account') ? $router.back() : $router.push('/')">
+        <v-icon>mdi-close</v-icon>
+      </v-app-bar-nav-icon>
 
-      </v-app-bar>
-      <v-container>
-        <v-card>
-          <v-card-text>
-            <v-form ref="form">
-              <v-currency-field
-                v-model="incomeExpense.amount"
-                :rules="amountRules"
-                label="Amount"
-                prepend-icon="mdi-currency-eur"
-                required
-                suffix="€"
-              />
-              <div v-if="isExpense">
-                <v-select
-                  v-model="incomeExpense.category1"
-                  :items="categoriesExpense.map(c => c.category1)"
-                  label="Primary Category"
-                  prepend-icon="mdi-numeric-1-circle-outline"
-                  :rules="requiredRules"
-                  required
-                ></v-select>
-                <v-select
-                  v-if="isExpense"
-                  v-model="incomeExpense.category2"
-                  :disabled="!incomeExpense.category1"
-                  :items="incomeExpense.category1 ? categoriesExpense.filter(c => c.category1 === incomeExpense.category1)[0].category2 : []"
-                  label="Secondary Category"
-                  prepend-icon="mdi-numeric-2-circle-outline"
-                  :rules="requiredRules"
-                  required
-                ></v-select>
-              </div>
-              <div v-else>
-                <v-select
-                  v-model="incomeExpense.category1"
-                  :items="categoriesIncome.map(c => c.category1)"
-                  label="Primary Category"
-                  prepend-icon="mdi-numeric-1-circle-outline"
-                  :rules="requiredRules"
-                  required
-                ></v-select>
-              </div>
-              <v-text-field
-                v-model="incomeExpense.description"
-                :counter="32"
-                label="Description"
-                prepend-icon="mdi-text"
-                :rules="descriptionRules"
-              />
-              <v-dialog
-                ref="dialog"
-                v-model="modal"
-                :return-value.sync="incomeExpense.date"
-                persistent
-                width="290px"
-                :rules="requiredRules"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="incomeExpense.date"
-                    label="Date"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="incomeExpense.date"
-                  scrollable
-                  first-day-of-week="1"
+      <v-toolbar-title>
+        <span v-if="edit">Edit</span>
+        <span v-else>Add</span>
+        <span v-if="isExpense">Expense</span>
+        <span v-else>Income</span>
+      </v-toolbar-title>
 
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="modal = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.dialog.save(incomeExpense.date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-dialog>
+    </v-app-bar>
+    <v-container>
+      <v-card>
+        <v-card-text>
+          <v-form ref="form">
+            <v-currency-field
+              v-model="incomeExpense.amount"
+              :rules="applyRules ? amountRules : []"
+              label="Amount"
+              prepend-icon="mdi-currency-eur"
+              required
+              suffix="€"
+            />
+            <div v-if="isExpense">
               <v-select
-                v-model="incomeExpense.account"
-                :items="accounts.map(a => a.name)"
-                label="Account"
-                prepend-icon="mdi-wallet"
+                v-model="incomeExpense.category1"
+                :items="categoriesExpense.map(c => c.category1)"
+                label="Primary Category"
+                prepend-icon="mdi-numeric-1-circle-outline"
                 :rules="requiredRules"
+                required
               ></v-select>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn v-if="edit" color="primary" @click="updateIncomeExpense">
-              <span>Update</span>
-              <span v-if="isExpense">&nbspExpense</span>
-              <span v-else>&nbspIncome</span>
-            </v-btn>
-            <v-btn v-else color="primary" @click="createIncomeExpense">
-              <span>Add</span>
-              <span v-if="isExpense">&nbspExpense</span>
-              <span v-else>&nbspIncome</span>
-            </v-btn>
-          </v-card-actions>
-          <v-card-actions v-show="edit">
-            <v-btn color="error" @click="deleteIncomeExpense">
-              Delete
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-container>
-    </div>
+              <v-select
+                v-if="isExpense"
+                v-model="incomeExpense.category2"
+                :disabled="!incomeExpense.category1"
+                :items="incomeExpense.category1 ? categoriesExpense.filter(c => c.category1 === incomeExpense.category1)[0].category2 : []"
+                label="Secondary Category"
+                prepend-icon="mdi-numeric-2-circle-outline"
+                :rules="requiredRules"
+                required
+              ></v-select>
+            </div>
+            <div v-else>
+              <v-select
+                v-model="incomeExpense.category1"
+                :items="categoriesIncome.map(c => c.category1)"
+                label="Primary Category"
+                prepend-icon="mdi-numeric-1-circle-outline"
+                :rules="requiredRules"
+                required
+              ></v-select>
+            </div>
+            <v-text-field
+              v-model="incomeExpense.description"
+              :counter="32"
+              label="Description"
+              prepend-icon="mdi-text"
+              :rules="descriptionRules"
+            />
+            <v-dialog
+              ref="dialog"
+              v-model="modal"
+              :return-value.sync="incomeExpense.date"
+              persistent
+              width="290px"
+              :rules="requiredRules"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="incomeExpense.date"
+                  label="Date"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="incomeExpense.date"
+                scrollable
+                first-day-of-week="1"
+
+              >
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="modal = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="$refs.dialog.save(incomeExpense.date)"
+                >
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-dialog>
+            <v-select
+              v-model="incomeExpense.account"
+              :items="accounts.map(a => a.name)"
+              label="Account"
+              prepend-icon="mdi-wallet"
+              :rules="requiredRules"
+            ></v-select>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn v-if="edit" color="primary" @click="updateIncomeExpense">
+            <span>Update</span>
+            <span v-if="isExpense">&nbspExpense</span>
+            <span v-else>&nbspIncome</span>
+          </v-btn>
+          <v-btn v-else color="primary" @click="createIncomeExpense">
+            <span>Add</span>
+            <span v-if="isExpense">&nbspExpense</span>
+            <span v-else>&nbspIncome</span>
+          </v-btn>
+        </v-card-actions>
+        <v-card-actions v-show="edit">
+          <v-btn color="error" @click="deleteIncomeExpense">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-container>
   </div>
 </template>
 
@@ -161,15 +160,16 @@ export default {
     return {
       modal: false,
       modal2: false,
-      loading: this.edit,
+      //loading: this.edit,
       incomeExpense: {
-        amount: "",
+        amount: 0,
         category1: "",
         category2: "",
         description: "",
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
         account: "",
       },
+      applyRules: false,
       //accounts: [],
       requiredRules: [
         v => !!v || "Required Field",
@@ -191,51 +191,47 @@ export default {
       default: false
     }
   },
-  async fetch() {
-    /*await this.$axios.$get(
-      `/accounts/${this.$auth.user._id}`,
-      {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    ).then(response => {
-      this.accounts = response
-    })*/
-    // TODO: is this hack?
-    await useAccountStore()
-
-    if (this.edit) {
-      await this.$axios.$get(
-        `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
-        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-      ).then(response => {
-        this.incomeExpense = response
-        this.incomeExpense.account = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID).name
-        this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
-        this.amount = this.incomeExpense.amount.toString();
-        //this.incomeExpense.amount = this.incomeExpense.amount
-      }).finally(
-        () => this.loading = false
-      )
-    }
-
-  },
   computed: {
     accounts: () => useAccountStore().accounts,
     current: () => useAccountStore().current,
     snackbar: () => useSnackbarStore(),
     categoriesIncome: () => useCategoryStore().income,
-    categoriesExpense: () => useCategoryStore().expense
+    categoriesExpense: () => useCategoryStore().expense,
+    loading: () => (useCategoryStore().loading || useCategoryStore().loading),
   },
-  mounted() {
-    if(this.current){
-      this.incomeExpense.account = this.current.name
+  /*created() {
+    //this.incomeExpense.amount = this.amount
+  },*/
+  async fetch() {
+
+    // Handle route changes
+    if (!this.loading) {
+      await this.loadData()
     }
   },
   watch: {
-    // Handles page refreshes
-    current(newValue) {
-      (typeof newValue !== "undefined") && (console.log(newValue))
+    // Handle page refreshes
+    async loading(newValue, oldValue) {
+      await this.loadData()
     }
   },
   methods: {
+    async loadData(){
+      if (this.edit) {
+        this.applyRules = false
+        await this.$axios.$get(
+          `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+        ).then(response => {
+          this.incomeExpense = response
+          this.incomeExpense.account = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID).name
+          this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
+          this.applyRules = true
+        })
+      } else {
+        (typeof this.current !== "undefined") && (this.incomeExpense.account = this.current.name)
+      }
+    },
     async createIncomeExpense() {
       if (this.$refs.form.validate() && typeof this.incomeExpense.amount !== 'undefined') {
         this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
@@ -260,7 +256,8 @@ export default {
       } else {
         this.snackbar.displayError("Form not valid")
       }
-    },
+    }
+    ,
     async updateIncomeExpense() {
       this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
       //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
@@ -280,7 +277,8 @@ export default {
       } catch {
         this.snackbar.displayError("Error")
       }
-    },
+    }
+    ,
     async deleteIncomeExpense() {
       try {
         await this.$axios.delete(
@@ -296,10 +294,8 @@ export default {
         this.snackbar.displayError("Error")
       }
     }
-  },
-  created() {
-    this.incomeExpense.amount = this.amount
   }
+  ,
 }
 </script>
 
