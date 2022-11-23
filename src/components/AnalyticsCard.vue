@@ -85,25 +85,25 @@ export default {
       showGraphs: false
     }
   },
-  computed:{
+  computed: {
     account: () => useAccountStore().current,
     loading: () => useAccountStore().getLoading,
   },
   methods: {
-    async loadData(){
+    async loadData() {
 
       // Set date range
       await this.setInitialDateRange()
 
       // Expense breakdown
-      this.getExpenseBreakdown().then(breakdown => {
+      /*this.getExpenseBreakdown().then(breakdown => {
         this.expenseBreakdown = breakdown
-      })
+      })*/
 
       // Income breakdown
-      this.getIncomeBreakdown().then(breakdown => {
+      /*this.getIncomeBreakdown().then(breakdown => {
         this.incomeBreakdown = breakdown
-      })
+      })*/
     },
     getExpenseBreakdown() {
       return this.$axios.$get(
@@ -136,41 +136,43 @@ export default {
   },
   async fetch() {
     // Change route
-    if (!this.loading){
+    if (!this.loading) {
       await this.loadData()
     }
   },
   watch: {
     // Refresh page
-    async loading(newValue, oldValue){
-      if(oldValue && !newValue){
+    async loading(newValue, oldValue) {
+      if (oldValue && !newValue) {
         await this.loadData()
       }
     },
 
-    dateRange: async function(val) {
+    dateRange: async function (newVal, oldVal) {
 
-      this.showGraphs = false
-      // TODO: make more efficient
-      // Order dates
-      let start = val[0]
-      let end = val[1] ? val[1] : val[0]
-      let compare = start.localeCompare(end)
-      if (compare > 0) {
-        this.startDate = end
-        this.endDate = start
-      } else {
-        this.startDate = start
-        this.endDate = end
+      if (newVal !== oldVal) {
+        this.showGraphs = false
+        // TODO: make more efficient
+        // Order dates
+        let start = newVal[0]
+        let end = newVal[1] ? newVal[1] : newVal[0]
+        let compare = start.localeCompare(end)
+        if (compare > 0) {
+          this.startDate = end
+          this.endDate = start
+        } else {
+          this.startDate = start
+          this.endDate = end
+        }
+
+        // Expense breakdown
+        this.expenseBreakdown = await this.getExpenseBreakdown()
+
+        // Income breakdown
+        this.incomeBreakdown = await this.getIncomeBreakdown()
+
+        this.showGraphs = true
       }
-
-      // Expense breakdown
-      this.expenseBreakdown = await this.getExpenseBreakdown()
-
-      // Income breakdown
-      this.incomeBreakdown = await this.getIncomeBreakdown()
-
-      this.showGraphs = true
     }
   }
 }
