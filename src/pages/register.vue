@@ -17,6 +17,7 @@
                 label="Username"
                 prepend-icon="mdi-account-circle"
                 :rules="usernameRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.email"
@@ -24,6 +25,7 @@
                 prepend-icon="mdi-email"
                 label="Email"
                 :rules="emailRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password"
@@ -33,6 +35,7 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
                 :rules="passwordRules"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password2"
@@ -42,31 +45,25 @@
                 :append-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword2 = !showPassword2"
                 :rules="password2Rules"
+                :disabled="loading"
               />
               <v-card-actions>
                 <v-btn type="submit" color="primary" :loading="loading" :disabled="loading">Register</v-btn>
-                <v-btn color="primary" text absolute right to="register" @click="$router.push('login')">Back</v-btn>
+                <v-btn color="primary" text absolute right to="register" @click="$router.push('login')"
+                       :disabled="loading">Back
+                </v-btn>
               </v-card-actions>
             </v-form>
           </v-card-text>
         </v-card>
       </v-row>
     </v-container>
-
-    <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-
-      <template v-slot:action="{ attrs }">
-        <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </div>
 </template>
 
 <script>
+import {useSnackbarStore} from "~/store/snackbar";
+
 export default {
   auth: false,
   layout: 'empty',
@@ -82,12 +79,6 @@ export default {
   },
   data() {
     return {
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
       form: {
         username: '',
         password: '',
@@ -111,15 +102,16 @@ export default {
         v => this.matchRule()
       ],
       emailRules: [
-      v => !!v || "Required Field",
-      v => !!v && v.length <= 128 || "Field too Long",
-      v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || "Invalid email"
-    ]
+        v => !!v || "Required Field",
+        v => !!v && v.length <= 128 || "Field too Long",
+        v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || "Invalid email"
+      ]
     };
   },
   methods: {
     async userRegister() {
       if (this.$refs.form.validate()) {
+        this.loading = true
         try {
           await this.$axios.post(
             '/auth/register',
@@ -130,25 +122,21 @@ export default {
             }
           )
             .catch(error => {
-            this.snackbar.color = "error";
-            this.snackbar.visible = true;
-            this.snackbar.text = error.response.status === 409 ? "Username or email already exists" : "Error creating user profile"
-          })
+              this.snackbar.displayError(error.response.status === 409 ? "Username or email already exists" : "Error creating user profile")
+            })
+        } catch {
+          this.snackbar.displayError("Error")
         }
-        catch{
-          this.snackbar.text = "Invalid registration data"
-          this.snackbar.color = "error";
-          this.snackbar.visible = true;
+        finally {
+          this.loading = false
         }
-      }
-      else {
-        this.snackbar.text = "Invalid registration data"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
+      } else {
+        this.snackbar.displayError("Invalid registration data")
       }
     },
   },
   computed: {
+    snackbar: () => useSnackbarStore(),
     matchRule() {
       return () => (this.form.password === this.form.password2) || 'Passwords must match'
     }

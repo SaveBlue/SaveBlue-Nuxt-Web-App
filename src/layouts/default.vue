@@ -49,12 +49,25 @@
     <!-- Footer -->
     <Footer/>
 
+    <!-- Snackbar -->
+    <AppSnackbar/>
+
   </v-app>
 </template>
 
 <script>
+import {useAccountStore} from "@/store/account";
+import {useContext} from "@nuxtjs/composition-api";
+
 export default {
   name: 'DefaultLayout',
+  setup(){
+    const context = useContext()
+    const accountStore = useAccountStore()
+
+    accountStore.fetchAccounts(context)
+    return {}
+  },
   data () {
     return {
       fab: false,
