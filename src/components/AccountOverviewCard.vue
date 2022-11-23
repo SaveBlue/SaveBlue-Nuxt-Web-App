@@ -36,7 +36,7 @@ export default {
   name: "AccountOverviewCard",
   computed:{
     account: () => useAccountStore().current,
-    loading: () => useAccountStore().loading,
+    loading: () => useAccountStore().getLoading,
   }
 }
 </script>

@@ -26,7 +26,7 @@ export default {
     useAccountStore().resetCurrent()
   },
   computed: {
-    loading: () => useAccountStore().loading,
+    loading: () => useAccountStore().getLoading,
     accounts: () => useAccountStore().accounts
   }
 }

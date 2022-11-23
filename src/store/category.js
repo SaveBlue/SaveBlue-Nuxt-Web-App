@@ -7,6 +7,9 @@ export const useCategoryStore = defineStore('categoryStore', {
     expense: [],
     loading: 0
   }),
+  getters: {
+    getLoading: (state) => !!(state.loading)
+  },
   actions: {
     async fetchIncome() {
       this.loading++

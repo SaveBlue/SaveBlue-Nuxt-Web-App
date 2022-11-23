@@ -87,7 +87,7 @@ export default {
   },
   computed:{
     account: () => useAccountStore().current,
-    loading: () => useAccountStore().loading,
+    loading: () => useAccountStore().getLoading,
   },
   methods: {
     async loadData(){

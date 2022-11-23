@@ -111,7 +111,7 @@ export default {
   },
   computed: {
     currentAccount: () => useAccountStore().current,
-    loading: () => useAccountStore().loading,
+    loading: () => useAccountStore().getLoading,
     snackbar: () => useSnackbarStore()
   },
   data() {

@@ -197,7 +197,7 @@ export default {
     snackbar: () => useSnackbarStore(),
     categoriesIncome: () => useCategoryStore().income,
     categoriesExpense: () => useCategoryStore().expense,
-    loading: () => (useCategoryStore().loading || useCategoryStore().loading),
+    loading: () => (useCategoryStore().getLoading || useCategoryStore().getLoading),
   },
   /*created() {
     //this.incomeExpense.amount = this.amount
