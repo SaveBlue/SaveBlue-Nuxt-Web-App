@@ -86,6 +86,11 @@ export default {
           to: '/profile'
         },
         {
+          icon: 'mdi-message-plus-outline',
+          title: 'SMS Sync',
+          to: '/drafts'
+        },
+        {
           icon: 'mdi-cog',
           title: 'Settings',
           to: '/settings'
