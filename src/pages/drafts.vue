@@ -10,7 +10,7 @@
         <v-icon>mdi-chevron-left</v-icon>
       </v-app-bar-nav-icon>
 
-      <v-toolbar-title>SMS Sync</v-toolbar-title>
+      <v-toolbar-title>Drafts</v-toolbar-title>
 
       <template v-slot:extension>
         <v-tabs
@@ -29,9 +29,14 @@
       <!-- Account Expenses -->
       <v-tab-item>
         <v-container>
-          <v-row v-if="!expenses.length">
+          <v-row v-if="loadingExpenses">
+            <v-col class="text-center">
+              <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
+            </v-col>
+          </v-row>
+          <v-row v-else-if="!expenses.length">
             <v-col>
-              <h1 class="text-center">No expenses</h1>
+              <h1 class="text-center">No expenses in drafts</h1>
             </v-col>
           </v-row>
           <v-row v-else class="pt-1" align="center" justify="center">
@@ -48,9 +53,14 @@
       <!-- Account Incomes -->
       <v-tab-item>
         <v-container>
-          <v-row v-if="!incomes.length">
+          <v-row v-if="loadingIncomes">
+            <v-col class="text-center">
+              <v-progress-circular size="50" color="primary" indeterminate class="ma-auto"/>
+            </v-col>
+          </v-row>
+          <v-row v-else-if="!incomes.length">
             <v-col>
-              <h1 class="text-center">No incomes</h1>
+              <h1 class="text-center">No incomes in drafts</h1>
             </v-col>
           </v-row>
           <v-row v-else class="pt-1" align="center" justify="center">
@@ -72,10 +82,11 @@
 <script>
 import {useAccountStore} from '@/store/account'
 import {useContext} from "@nuxtjs/composition-api";
+
 export default {
   name: 'drafts',
   layout: 'empty',
-  setup(){
+  setup() {
     const context = useContext()
     const accountStore = useAccountStore()
 
@@ -88,24 +99,30 @@ export default {
       incomes: [],
       incomesPageCounter: 0,
       stopLoadingIncomes: false,
+      loadingIncomes: true,
       expenses: [],
       expensesPageCounter: 0,
       stopLoadingExpenses: false,
+      loadingExpenses: true
     }
   },
   methods: {
-    async loadData(){
+    async loadData() {
       // Account incomes
+      this.loadingIncomes = true
+      this.loadingExpenses = true
       this.incomes = await this.$axios.$get(
         `/incomes/find/${this.draftsAccount._id}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       );
+      this.loadingIncomes = false
 
       // Account expenses
       this.expenses = await this.$axios.$get(
         `/expenses/find/${this.draftsAccount._id}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       )
+      this.loadingExpenses = false
     },
     infiniteScrollingExpenses(entries, observer, isIntersecting) {
       if (isIntersecting && !this.stopLoadingExpenses) {
@@ -144,20 +161,20 @@ export default {
       }
     }
   },
-  computed:{
+  computed: {
     draftsAccount: () => useAccountStore().draftsAccount,
     loading: () => useAccountStore().getLoading,
   },
   async mounted() {
     // Change route
-    if (!this.loading){
+    if (!this.loading) {
       await this.loadData()
     }
   },
-  watch:{
+  watch: {
     // Refresh page
-    async loading(newValue, oldValue){
-      if(oldValue && !newValue){
+    async loading(newValue, oldValue) {
+      if (oldValue && !newValue) {
         await this.loadData()
       }
     }
