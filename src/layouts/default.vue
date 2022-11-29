@@ -81,14 +81,14 @@ export default {
           to: '/'
         },
         {
+          icon: 'mdi-credit-card-sync',
+          title: 'Drafts',
+          to: '/drafts'
+        },
+        {
           icon: 'mdi-account',
           title: 'Profile',
           to: '/profile'
-        },
-        {
-          icon: 'mdi-message-plus-outline',
-          title: 'SMS Sync',
-          to: '/drafts'
         },
         {
           icon: 'mdi-cog',

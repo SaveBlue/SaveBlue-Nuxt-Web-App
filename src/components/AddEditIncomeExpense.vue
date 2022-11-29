@@ -224,7 +224,13 @@ export default {
           {headers: {"x-access-token": this.$auth.strategy.token.get()}}
         ).then(response => {
           this.incomeExpense = response
-          this.incomeExpense.account = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID).name
+          // Handle Drafts
+          if (this.incomeExpense.category1 === "Draft"){
+            this.incomeExpense.category1 = "";
+            (this.incomeExpense.category2) && (this.incomeExpense.category2 = "")
+          }
+          const accountFromList = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID)
+          this.incomeExpense.account = accountFromList ? accountFromList.name : ""
           this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
           this.applyRules = true
         })
@@ -259,23 +265,28 @@ export default {
     }
     ,
     async updateIncomeExpense() {
-      this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
-      //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
-      this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
-      //console.log(this.incomeExpense.amount)
-      try {
-        await this.$axios.put(
-          `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
-          this.incomeExpense,
-          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-        ).then(
-          () => {
-            this.snackbar.displaySuccess("Updated")
-            this.current ? this.$router.back() : this.$router.push('/')
-          }
-        )
-      } catch {
-        this.snackbar.displayError("Error")
+      if (this.$refs.form.validate()){
+        this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
+        //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
+        this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
+        //console.log(this.incomeExpense.amount)
+        try {
+          await this.$axios.put(
+            `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
+            this.incomeExpense,
+            {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+          ).then(
+            () => {
+              this.snackbar.displaySuccess("Updated")
+              this.current ? this.$router.back() : this.$router.push('/')
+            }
+          )
+        } catch {
+          this.snackbar.displayError("Error")
+        }
+      }
+      else {
+        this.snackbar.displayError("Form not valid")
       }
     }
     ,

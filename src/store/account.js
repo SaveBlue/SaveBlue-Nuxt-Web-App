@@ -4,7 +4,8 @@ export const useAccountStore = defineStore('accountStore', {
   state: () => ({
     accounts: [],
     loading: 0,
-    current: undefined
+    current: undefined,
+    draftsAccount: undefined
   }),
   getters: {
     getLoading: (state) => !!(state.loading),
@@ -13,7 +14,6 @@ export const useAccountStore = defineStore('accountStore', {
   actions: {
     async fetchCurrent(context) {
       const {$axios, $auth, params} = context
-      console.log(params)
       if (params.value.idA){
         this.loading++
         try {
@@ -113,6 +113,25 @@ export const useAccountStore = defineStore('accountStore', {
           this.loading--
         }
       });
-    }
+    },
+    async fetchDraftsAccount(context) {
+      this.loading++
+      try {
+        const {$axios, $auth} = context
+        await $axios.$get(
+          `/accounts/drafts/${$auth.user._id}`,
+          {headers: {"x-access-token": $auth.strategy.token.get()}})
+          .then((res) => {
+            this.draftsAccount = res
+          })
+        /*.catch((e)=>{
+          console.log(e)
+        })*/
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.loading--
+      }
+    },
   },
 })

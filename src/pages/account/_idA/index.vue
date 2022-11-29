@@ -53,7 +53,7 @@
       <v-tab-item>
         <v-container>
           <v-row class="pt-1" align="center" justify="center">
-            <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._idA">
+            <v-col class="py-1" cols="12" v-for="expense in expenses" :key="expense._id">
               <IncomesExpensesTable :isExpense=true :incomeExpense="expense"/>
             </v-col>
             <v-col class="text-center" v-intersect="infiniteScrollingExpenses">
