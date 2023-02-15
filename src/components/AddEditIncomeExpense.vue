@@ -16,7 +16,7 @@
       app
     >
       <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
-      <v-app-bar-nav-icon @click="$nuxt.context.from.path.includes('account') ? $router.back() : $router.push('/')">
+      <v-app-bar-nav-icon @click="($nuxt.context.from.path.includes('account') || $nuxt.context.from.path.includes('drafts')) ? $router.back() : $router.push('/')">
         <v-icon>mdi-close</v-icon>
       </v-app-bar-nav-icon>
 
@@ -278,7 +278,7 @@ export default {
           ).then(
             () => {
               this.snackbar.displaySuccess("Updated")
-              this.current ? this.$router.back() : this.$router.push('/')
+              (this.current || this.$nuxt.context.from.path.includes('drafts')) ? this.$router.back() : this.$router.push('/')
             }
           )
         } catch {
