@@ -26,7 +26,7 @@
 
     <v-tabs-items v-model="tab" style="height:100%">
 
-      <!-- Account Expenses -->
+      <!-- Wallet Expenses -->
       <v-tab-item>
         <v-container>
           <v-row v-if="loadingExpenses">
@@ -50,7 +50,7 @@
         </v-container>
       </v-tab-item>
 
-      <!-- Account Incomes -->
+      <!-- Wallet Incomes -->
       <v-tab-item>
         <v-container>
           <v-row v-if="loadingIncomes">
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import {useAccountStore} from '@/store/account'
+import {useWalletStore} from '@/store/wallet'
 import {useContext} from "@nuxtjs/composition-api";
 
 export default {
@@ -88,9 +88,9 @@ export default {
   layout: 'empty',
   setup() {
     const context = useContext()
-    const accountStore = useAccountStore()
+    const walletStore = useWalletStore()
 
-    accountStore.fetchDraftsAccount(context)
+    walletStore.fetchDraftsWallet(context)
     return {}
   },
   data() {
@@ -108,18 +108,18 @@ export default {
   },
   methods: {
     async loadData() {
-      // Account incomes
+      // Wallet incomes
       this.loadingIncomes = true
       this.loadingExpenses = true
       this.incomes = await this.$axios.$get(
-        `/incomes/find/${this.draftsAccount._id}`,
+        `/incomes/find/${this.draftsWallet._id}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       );
       this.loadingIncomes = false
 
-      // Account expenses
+      // Wallet expenses
       this.expenses = await this.$axios.$get(
-        `/expenses/find/${this.draftsAccount._id}`,
+        `/expenses/find/${this.draftsWallet._id}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       )
       this.loadingExpenses = false
@@ -128,7 +128,7 @@ export default {
       if (isIntersecting && !this.stopLoadingExpenses) {
         this.expensesPageCounter++;
         this.$axios.$get(
-          `/expenses/find/${this.draftsAccount._id}`,
+          `/expenses/find/${this.draftsWallet._id}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.expensesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -146,7 +146,7 @@ export default {
       if (isIntersecting && !this.stopLoadingIncomes) {
         this.incomesPageCounter++;
         this.$axios.$get(
-          `/incomes/find/${this.draftsAccount._id}`,
+          `/incomes/find/${this.draftsWallet._id}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -162,8 +162,8 @@ export default {
     }
   },
   computed: {
-    draftsAccount: () => useAccountStore().draftsAccount,
-    loading: () => useAccountStore().getLoading,
+    draftsWallet: () => useWalletStore().draftsWallet,
+    loading: () => useWalletStore().getLoading,
   },
   async mounted() {
     // Change route

@@ -19,8 +19,8 @@
           <v-icon>mdi-close</v-icon>
         </v-app-bar-nav-icon>
 
-        <v-toolbar-title v-if="edit">{{ currentAccount.name }}</v-toolbar-title>
-        <v-toolbar-title v-else>New Account</v-toolbar-title>
+        <v-toolbar-title v-if="edit">{{ currentWallet.name }}</v-toolbar-title>
+        <v-toolbar-title v-else>New Wallet</v-toolbar-title>
 
       </v-app-bar>
       <v-container>
@@ -29,15 +29,15 @@
             <v-row align="center" justify="center">
               <v-col cols="12">
                 <v-text-field
-                  v-model="account.name"
+                  v-model="wallet.name"
                   :counter="32"
-                  label="Account Name"
+                  label="Wallet Name"
                   prepend-icon="mdi-wallet"
                 />
                 <v-slider
                   label="Billing day"
                   prepend-icon="mdi-update"
-                  v-model="account.startOfMonth"
+                  v-model="wallet.startOfMonth"
                   min="1"
                   max="31"
                   thumb-label
@@ -45,14 +45,14 @@
                 />
                 <v-row v-show="!edit">
                   <v-col cols="12">
-                    <v-btn type="submit" color="primary" @click="handleCreateAccount">Create Account</v-btn>
+                    <v-btn type="submit" color="primary" @click="handleCreateWallet">Create Wallet</v-btn>
                   </v-col>
                 </v-row>
                 <v-row v-show="edit" >
                   <v-col cols="12">
-                    <v-btn type="submit" color="primary" @click="handleUpdateAccount">Update Account</v-btn>
+                    <v-btn type="submit" color="primary" @click="handleUpdateWallet">Update Wallet</v-btn>
 
-                    <v-btn class="my-3" type="submit" color="error" text @click="dialog=true">Delete Account</v-btn>
+                    <v-btn class="my-3" type="submit" color="error" text @click="dialog=true">Delete Wallet</v-btn>
                   </v-col>
                 </v-row>
               </v-col>
@@ -66,11 +66,11 @@
         >
           <v-card>
             <v-card-title class="text-h5">
-              Delete Account?
+              Delete Wallet?
             </v-card-title>
 
             <v-card-text>
-              Delete the account and all its contents?
+              Delete the wallet and all its contents?
             </v-card-text>
 
             <v-card-actions>
@@ -86,7 +86,7 @@
               <v-btn
                 color="error"
                 text
-                @click="handleDeleteAccount"
+                @click="handleDeleteWallet"
               >
                 Yes
               </v-btn>
@@ -100,7 +100,7 @@
 
 <script>
 
-import {useAccountStore} from '@/store/account'
+import {useWalletStore} from '@/store/wallet'
 import {useSnackbarStore} from "@/store/snackbar";
 import {useContext} from "@nuxtjs/composition-api";
 export default {
@@ -110,13 +110,13 @@ export default {
     return {context}
   },
   computed: {
-    currentAccount: () => useAccountStore().current,
-    loading: () => useAccountStore().getLoading,
+    currentWallet: () => useWalletStore().current,
+    loading: () => useWalletStore().getLoading,
     snackbar: () => useSnackbarStore()
   },
   data() {
     return {
-      account: {
+      wallet: {
         name: "",
         startOfMonth: 1
       },
@@ -138,51 +138,51 @@ export default {
     // Handle page refreshes
     loading(newValue, oldValue) {
       if (this.edit && oldValue && !newValue) {
-        this.account = this.currentAccount
+        this.wallet = this.currentWallet
       }
     }
   },
   mounted() {
     // Handle route changes
     if(this.edit && !this.loading){
-      (typeof this.currentAccount !== "undefined") && (this.account = this.currentAccount)
+      (typeof this.currentWallet !== "undefined") && (this.wallet = this.currentWallet)
     }
   },
   methods: {
-    async handleCreateAccount() {
+    async handleCreateWallet() {
       try {
-        await useAccountStore().createAccount(this.account, this.context)
+        await useWalletStore().createWallet(this.wallet, this.context)
           .then((data) => {
               this.$router.push('/')
-              this.snackbar.displayPrimary("Account created")
+              this.snackbar.displayPrimary("Wallet created")
             }
           )
       } catch(error) {
-        this.snackbar.displayError("Account not created")
+        this.snackbar.displayError("Wallet not created")
       }
     },
-    async handleUpdateAccount() {
+    async handleUpdateWallet() {
       try {
-        await useAccountStore().updateAccount(this.account, this.context)
+        await useWalletStore().updateWallet(this.wallet, this.context)
           .then((data) => {
-              this.$router.push(`/account/${this.$route.params.idA}`)
-              this.snackbar.displayPrimary("Account updated")
+              this.$router.push(`/wallet/${this.$route.params.idW}`)
+              this.snackbar.displayPrimary("Wallet updated")
             }
           )
       } catch(error) {
-        this.snackbar.displayError("Account not updated")
+        this.snackbar.displayError("Wallet not updated")
       }
     },
-    async handleDeleteAccount() {
+    async handleDeleteWallet() {
       try {
-        await useAccountStore().deleteAccount(this.context)
+        await useWalletStore().deleteWallet(this.context)
           .then(() => {
             this.$router.push('/')
-            this.snackbar.displayPrimary("Account deleted")
+            this.snackbar.displayPrimary("Wallet deleted")
             }
           )
       } catch(error) {
-        this.snackbar.displayError("Account not deleted")
+        this.snackbar.displayError("Wallet not deleted")
       }
     }
   }

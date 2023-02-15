@@ -16,7 +16,7 @@
       app
     >
       <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
-      <v-app-bar-nav-icon @click="($nuxt.context.from.path.includes('account') || $nuxt.context.from.path.includes('drafts')) ? $router.back() : $router.push('/')">
+      <v-app-bar-nav-icon @click="($nuxt.context.from.path.includes('wallet') || $nuxt.context.from.path.includes('drafts')) ? $router.back() : $router.push('/')">
         <v-icon>mdi-close</v-icon>
       </v-app-bar-nav-icon>
 
@@ -119,9 +119,9 @@
               </v-date-picker>
             </v-dialog>
             <v-select
-              v-model="incomeExpense.account"
-              :items="accounts.map(a => a.name)"
-              label="Account"
+              v-model="incomeExpense.wallet"
+              :items="wallets.map(w => w.name)"
+              label="Wallet"
               prepend-icon="mdi-wallet"
               :rules="requiredRules"
             ></v-select>
@@ -152,7 +152,7 @@
 <script>
 import {useSnackbarStore} from '@/store/snackbar'
 import {useCategoryStore} from "~/store/category";
-import {useAccountStore} from "~/store/account";
+import {useWalletStore} from "~/store/wallet";
 
 export default {
   name: "add-income-expense",
@@ -167,7 +167,7 @@ export default {
         category2: "",
         description: "",
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
-        account: "",
+        wallet: "",
       },
       applyRules: false,
       //accounts: [],
@@ -192,8 +192,8 @@ export default {
     }
   },
   computed: {
-    accounts: () => useAccountStore().accounts,
-    current: () => useAccountStore().current,
+    wallets: () => useWalletStore().wallets,
+    current: () => useWalletStore().current,
     snackbar: () => useSnackbarStore(),
     categoriesIncome: () => useCategoryStore().income,
     categoriesExpense: () => useCategoryStore().expense,
@@ -229,18 +229,18 @@ export default {
             this.incomeExpense.category1 = "";
             (this.incomeExpense.category2) && (this.incomeExpense.category2 = "")
           }
-          const accountFromList = this.accounts.find((acc) => acc._id === this.incomeExpense.accountID)
-          this.incomeExpense.account = accountFromList ? accountFromList.name : ""
+          const walletFromList = this.wallets.find((w) => w._id === this.incomeExpense.accountID)
+          this.incomeExpense.wallet = walletFromList ? walletFromList.name : ""
           this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
           this.applyRules = true
         })
       } else {
-        (typeof this.current !== "undefined") && (this.incomeExpense.account = this.current.name)
+        (typeof this.current !== "undefined") && (this.incomeExpense.wallet = this.current.name)
       }
     },
     async createIncomeExpense() {
       if (this.$refs.form.validate() && typeof this.incomeExpense.amount !== 'undefined') {
-        this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
+        this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
@@ -266,7 +266,7 @@ export default {
     ,
     async updateIncomeExpense() {
       if (this.$refs.form.validate()){
-        this.incomeExpense.accountID = (this.accounts.find((acc) => acc.name === this.incomeExpense.account))._id
+        this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         //console.log(this.incomeExpense.amount)
@@ -277,7 +277,7 @@ export default {
             {headers: {"x-access-token": this.$auth.strategy.token.get()}}
           ).then(
             () => {
-              this.snackbar.displaySuccess("Updated")
+              this.snackbar.displaySuccess("Updated");
               (this.current || this.$nuxt.context.from.path.includes('drafts')) ? this.$router.back() : this.$router.push('/')
             }
           )

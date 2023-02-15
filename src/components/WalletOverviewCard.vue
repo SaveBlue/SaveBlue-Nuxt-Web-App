@@ -16,13 +16,13 @@
     </v-card-title>
 
     <v-card-subtitle>
-      Billing day: {{account.startOfMonth}}
+      Billing day: {{wallet.startOfMonth}}
     </v-card-subtitle>
 
     <v-card-text>
-      <h1>{{(account.availableBalance/100).toFixed(2)}} €</h1>
+      <h1>{{(wallet.availableBalance/100).toFixed(2)}} €</h1>
       <br>
-      <h3>{{(account.totalBalance/100).toFixed(2)}} €</h3>
+      <h3>{{(wallet.totalBalance/100).toFixed(2)}} €</h3>
       <h5>(Total Balance)</h5>
     </v-card-text>
   </v-card>
@@ -30,13 +30,13 @@
 </template>
 
 <script>
-import {useAccountStore} from "@/store/account";
+import {useWalletStore} from "@/store/wallet";
 
 export default {
-  name: "AccountOverviewCard",
+  name: "WalletOverviewCard",
   computed:{
-    account: () => useAccountStore().current,
-    loading: () => useAccountStore().getLoading,
+    wallet: () => useWalletStore().current,
+    loading: () => useWalletStore().getLoading,
   }
 }
 </script>

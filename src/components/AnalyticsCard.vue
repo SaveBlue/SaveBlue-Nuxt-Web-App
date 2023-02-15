@@ -71,7 +71,7 @@
 
 <script>
 
-import {useAccountStore} from "@/store/account";
+import {useWalletStore} from "@/store/wallet";
 
 export default {
   name: "AnalyticsCard",
@@ -86,8 +86,8 @@ export default {
     }
   },
   computed: {
-    account: () => useAccountStore().current,
-    loading: () => useAccountStore().getLoading,
+    wallet: () => useWalletStore().current,
+    loading: () => useWalletStore().getLoading,
   },
   methods: {
     async loadData() {
@@ -107,7 +107,7 @@ export default {
     },
     getExpenseBreakdown() {
       return this.$axios.$get(
-        `/expenses/breakdown/${this.account._id}`,
+        `/expenses/breakdown/${this.wallet._id}`,
         {
           headers: {"x-access-token": this.$auth.strategy.token.get()},
           params: {startDate: this.startDate, endDate: this.endDate}
@@ -116,7 +116,7 @@ export default {
     },
     getIncomeBreakdown() {
       return this.$axios.$get(
-        `/incomes/breakdown/${this.account._id}`,
+        `/incomes/breakdown/${this.wallet._id}`,
         {
           headers: {"x-access-token": this.$auth.strategy.token.get()},
           params: {startDate: this.startDate, endDate: this.endDate}
@@ -127,8 +127,8 @@ export default {
       let d = new Date(Date.now());
       let start, end;
       end = d.toISOString().split('T')[0];
-      (this.account.startOfMonth - d.getDate() > 0) && d.setMonth(d.getMonth() - 1);
-      d.setDate(this.account.startOfMonth);
+      (this.wallet.startOfMonth - d.getDate() > 0) && d.setMonth(d.getMonth() - 1);
+      d.setDate(this.wallet.startOfMonth);
       start = d.toISOString().split('T')[0];
       this.dateRange = [start, end];
       this.selectedDateRange = this.dateRange

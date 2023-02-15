@@ -127,7 +127,7 @@ export default {
         {
           name: "Add Income",
           short_name: "Add Income",
-          description: "Add new income to an account",
+          description: "Add new income to a wallet",
           url: "/income/add",
           icons: [
             {
@@ -140,7 +140,7 @@ export default {
         {
           name: "Add Expense",
           short_name: "Add Expense",
-          description: "Add new expense to an account",
+          description: "Add new expense to a wallet",
           url: "/expense/add",
           icons: [
             {

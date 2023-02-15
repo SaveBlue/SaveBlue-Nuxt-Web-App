@@ -1,24 +1,24 @@
 import {defineStore} from 'pinia'
 
-export const useAccountStore = defineStore('accountStore', {
+export const useWalletStore = defineStore('walletStore', {
   state: () => ({
-    accounts: [],
+    wallets: [],
     loading: 0,
     current: undefined,
-    draftsAccount: undefined
+    draftsWallet: undefined
   }),
   getters: {
     getLoading: (state) => !!(state.loading),
-    count: (state) => state.accounts.length,
+    count: (state) => state.wallets.length,
   },
   actions: {
     async fetchCurrent(context) {
       const {$axios, $auth, params} = context
-      if (params.value.idA){
+      if (params.value.idW){
         this.loading++
         try {
           await $axios.$get(
-            `/accounts/find/${params.value.idA}`,
+            `/accounts/find/${params.value.idW}`,
             {headers: {"x-access-token": $auth.strategy.token.get()}})
             .then((res) => {
               //console.log(res)
@@ -34,7 +34,7 @@ export const useAccountStore = defineStore('accountStore', {
     resetCurrent() {
       this.current = undefined
     },
-    async fetchAccounts(context) {
+    async fetchWallets(context) {
       this.loading++
       try {
         const {$axios, $auth} = context
@@ -43,7 +43,7 @@ export const useAccountStore = defineStore('accountStore', {
           {headers: {"x-access-token": $auth.strategy.token.get()}})
           .then((res) => {
             //console.log(res)
-            this.accounts = res.data
+            this.wallets = res.data
           })
         /*.catch((e)=>{
           console.log(e)
@@ -54,17 +54,17 @@ export const useAccountStore = defineStore('accountStore', {
         this.loading--
       }
     },
-    async createAccount(account, context) {
+    async createWallet(wallet, context) {
       this.loading++
       return new Promise((resolve, reject) => {
         try {
           const {$axios, $auth} = context
           $axios.post(
             `/accounts/${$auth.user._id}`,
-            account,
+            wallet,
             {headers: {"x-access-token": $auth.strategy.token.get()}})
             .then((res) => {
-              this.accounts.push(res.data)
+              this.wallets.push(res.data)
               resolve(res.data)
             })
         } catch (error) {
@@ -74,18 +74,18 @@ export const useAccountStore = defineStore('accountStore', {
         }
       });
     },
-    async updateAccount(accountData, context) {
+    async updateWallet(walletData, context) {
       this.loading++
       return new Promise((resolve, reject) => {
         try {
           const {$axios, $auth} = context
           $axios.put(
             `/accounts/${this.current._id}`,
-            accountData,
+            walletData,
             {headers: {"x-access-token": $auth.strategy.token.get()}})
             .then((res) => {
-              let updatedIndex = this.accounts.findIndex(a => a._id === this.current._id);
-              this.accounts[updatedIndex] = res.data;
+              let updatedIndex = this.wallets.findIndex(w => w._id === this.current._id);
+              this.wallets[updatedIndex] = res.data;
               resolve(res.data)
             })
         } catch (error) {
@@ -95,7 +95,7 @@ export const useAccountStore = defineStore('accountStore', {
         }
       });
     },
-    deleteAccount(context) {
+    deleteWallet(context) {
       this.loading++
       return new Promise((resolve, reject) => {
         try {
@@ -104,7 +104,7 @@ export const useAccountStore = defineStore('accountStore', {
             `/accounts/${this.current._id}`,
             {headers: {"x-access-token": $auth.strategy.token.get()}})
             .then(() => {
-              this.accounts = this.accounts.filter(a => a.id !== this.current.id)
+              this.wallets = this.wallets.filter(w => w.id !== this.current.id)
               resolve()
             })
         } catch (error) {
@@ -114,7 +114,7 @@ export const useAccountStore = defineStore('accountStore', {
         }
       });
     },
-    async fetchDraftsAccount(context) {
+    async fetchDraftsWallet(context) {
       this.loading++
       try {
         const {$axios, $auth} = context
@@ -122,7 +122,7 @@ export const useAccountStore = defineStore('accountStore', {
           `/accounts/drafts/${$auth.user._id}`,
           {headers: {"x-access-token": $auth.strategy.token.get()}})
           .then((res) => {
-            this.draftsAccount = res
+            this.draftsWallet = res
           })
         /*.catch((e)=>{
           console.log(e)

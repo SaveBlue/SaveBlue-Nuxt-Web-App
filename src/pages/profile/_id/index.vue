@@ -32,11 +32,11 @@
     >
       <v-card>
         <v-card-title class="text-h5">
-          Delete Account?
+          Delete Wallet?
         </v-card-title>
 
         <v-card-text>
-          Delete the account and all its contents? Account data will be removed and the action is irreversible.
+          Delete the wallet and all its contents? Wallet data will be removed and the action is irreversible.
         </v-card-text>
 
         <v-card-actions>

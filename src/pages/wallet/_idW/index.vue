@@ -10,7 +10,7 @@
         <v-icon>mdi-chevron-left</v-icon>
       </v-app-bar-nav-icon>
 
-      <v-toolbar-title v-if="!loading">{{ account.name }}</v-toolbar-title>
+      <v-toolbar-title v-if="!loading">{{ wallet.name }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -32,13 +32,13 @@
     </v-app-bar>
 
     <v-tabs-items v-model="tab" style="height:100%">
-      <!-- Account Overview -->
+      <!-- Wallet Overview -->
       <v-tab-item>
         <v-container>
           <v-row align="center" justify="center">
             <!-- Overview -->
             <v-col cols="12">
-              <AccountOverviewCard/>
+              <WalletOverviewCard/>
             </v-col>
             <!-- Analytics -->
             <v-col cols="12">
@@ -49,7 +49,7 @@
         </v-container>
       </v-tab-item>
 
-      <!-- Account Expenses -->
+      <!-- Wallet Expenses -->
       <v-tab-item>
         <v-container>
           <v-row class="pt-1" align="center" justify="center">
@@ -63,7 +63,7 @@
         </v-container>
       </v-tab-item>
 
-      <!-- Account Incomes -->
+      <!-- Wallet Incomes -->
       <v-tab-item>
         <v-container>
           <v-row class="pt-1" align="center" justify="center">
@@ -84,7 +84,7 @@
 </template>
 
 <script>
-import {useAccountStore} from '@/store/account'
+import {useWalletStore} from '@/store/wallet'
 export default {
   layout: 'empty',
   data() {
@@ -100,15 +100,15 @@ export default {
   },
   methods: {
     async loadData(){
-      // Account incomes
+      // Wallet incomes
       this.incomes = await this.$axios.$get(
-        `/incomes/find/${this.$route.params.idA}`,
+        `/incomes/find/${this.$route.params.idW}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       );
 
-      // Account expenses
+      // Wallet expenses
       this.expenses = await this.$axios.$get(
-        `/expenses/find/${this.$route.params.idA}`,
+        `/expenses/find/${this.$route.params.idW}`,
         {headers: {"x-access-token": this.$auth.strategy.token.get()}}
       )
     },
@@ -116,7 +116,7 @@ export default {
       if (isIntersecting && !this.stopLoadingExpenses) {
         this.expensesPageCounter++;
         this.$axios.$get(
-          `/expenses/find/${this.$route.params.idA}`,
+          `/expenses/find/${this.$route.params.idW}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.expensesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -134,7 +134,7 @@ export default {
       if (isIntersecting && !this.stopLoadingIncomes) {
         this.incomesPageCounter++;
         this.$axios.$get(
-          `/incomes/find/${this.$route.params.idA}`,
+          `/incomes/find/${this.$route.params.idW}`,
           {headers: {"x-access-token": this.$auth.strategy.token.get()}, params: {page: this.incomesPageCounter}}
         ).then(response => {
           if (response.length > 0) {
@@ -150,8 +150,8 @@ export default {
     }
   },
   computed:{
-    account: () => useAccountStore().current,
-    loading: () => useAccountStore().getLoading,
+    wallet: () => useWalletStore().current,
+    loading: () => useWalletStore().getLoading,
   },
   async mounted() {
     // Change route

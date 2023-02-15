@@ -49,7 +49,7 @@ export default {
     }
   },
   props: {
-    accountID : String
+    walletID : String
   }
 }
 </script>

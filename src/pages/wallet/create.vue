@@ -1,6 +1,5 @@
 <template>
-  <AddEditAccount :edit="true"/>
-
+<AddEditWallet/>
 </template>
 
 <script>

@@ -56,16 +56,16 @@
 </template>
 
 <script>
-import {useAccountStore} from "@/store/account";
+import {useWalletStore} from "@/store/wallet";
 import {useContext} from "@nuxtjs/composition-api";
 
 export default {
   name: 'DefaultLayout',
   setup(){
     const context = useContext()
-    const accountStore = useAccountStore()
+    const walletStore = useWalletStore()
 
-    accountStore.fetchAccounts(context)
+    walletStore.fetchWallets(context)
     return {}
   },
   data () {

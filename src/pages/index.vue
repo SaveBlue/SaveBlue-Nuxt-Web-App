@@ -2,16 +2,16 @@
   <v-container>
     <v-row align="center">
         <v-col v-if="loading" cols="12" sm="6">
-          <AccountCardSkeleton/>
+          <WalletCardSkeleton/>
         </v-col>
         <v-col v-if="loading" cols="12" sm="6">
-          <AccountCardSkeleton/>
+          <WalletCardSkeleton/>
         </v-col>
-      <v-col v-else cols="12" sm="6" v-for="account in accounts" :key="account._id">
-        <AccountCard :account="account"/>
+      <v-col v-else cols="12" sm="6" v-for="wallet in wallets" :key="wallet._id">
+        <WalletCard :wallet="wallet"/>
       </v-col>
       <v-col cols="12" sm="6">
-        <AccountCard :is-new="true"/>
+        <WalletCard :is-new="true"/>
       </v-col>
     </v-row>
   </v-container>
@@ -19,15 +19,15 @@
 </template>
 
 <script>
-import {useAccountStore} from '@/store/account'
+import {useWalletStore} from '@/store/wallet'
 
 export default {
   created() {
-    useAccountStore().resetCurrent()
+    useWalletStore().resetCurrent()
   },
   computed: {
-    loading: () => useAccountStore().getLoading,
-    accounts: () => useAccountStore().accounts
+    loading: () => useWalletStore().getLoading,
+    wallets: () => useWalletStore().wallets
   }
 }
 </script>
