@@ -47,7 +47,7 @@
         <!--<IncomeExpenseFAB/>-->
 
         <!-- Footer -->
-        <!--<Footer/>-->
+        <Footer/>
 
         <!-- Snackbar -->
         <!--<AppSnackbar/>-->
@@ -62,15 +62,15 @@ import { useTheme } from 'vuetify'
 
 /*import {useWalletStore} from "~/stores/wallet";
 const walletStore = useWalletStore()
-walletStore.fetchWallets()*/
+walletStore.fetchWallets(context)
+walletStore.fetchCurrent(context)
+categoryStore.fetchExpense()
+categoryStore.fetchIncome()*/
 
-const { mdAndUp } = useDisplay()
 const theme = useTheme()
+const { mdAndUp } = useDisplay()
 
 onMounted(() => {
-
-    console.log(colors.blue)
-
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
         theme.global.name.value = 'themeDark'
     }
