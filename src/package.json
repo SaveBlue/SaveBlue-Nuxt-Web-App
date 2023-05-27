@@ -11,5 +11,10 @@
   "devDependencies": {
     "@types/node": "^18",
     "nuxt": "^3.5.1"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.1.96",
+    "sass": "^1.62.1",
+    "vuetify": "^3.3.1"
   }
 }
