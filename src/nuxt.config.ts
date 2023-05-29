@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
     app: {
         head: {
-            titleTemplate: '%s - src',
+            titleTemplate: '%s - SaveBlue',
             title: 'SaveBlue',
             meta: [
                 {charset: 'utf-8'},
@@ -19,13 +19,12 @@ export default defineNuxtConfig({
         "@mdi/font/css/materialdesignicons.min.css"
     ],
     modules: [
-        //'@pinia/nuxt',
+        '@pinia/nuxt',
         //'@pinia-plugin-persistedstate/nuxt',
     ],
     runtimeConfig:{
         public: {
-            //baseApiUrl: 'http://192.168.0.3:8088',
-            baseApiUrl: 'http://localhost:8088',
+            baseApiUrl: 'http://localhost:5000',
         }
     },
     build: {

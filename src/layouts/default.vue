@@ -1,11 +1,8 @@
 <template>
-    <v-app dark>
+    <v-app>
         <v-navigation-drawer
-                v-model="drawer"
-                :mini-variant="miniVariant"
-                :clipped="clipped"
-                fixed
-                app
+                :model-value="drawer"
+                :rail="rail"
                 :permanent="mdAndUp"
         >
             <v-list>
@@ -13,23 +10,14 @@
                         v-for="(item, i) in items"
                         :key="i"
                         :to="item.to"
-                        router
                         exact
+                        :prepend-icon="item.icon"
+                        :title="item.title"
                 >
-                    <v-list-item-action>
-                        <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-item-action>
-
-                    <v-list-item-title v-text="item.title"/>
-
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
         <v-app-bar
-                :clipped-left="clipped"
-                fixed
-                app
-                dark
                 color="primary"
         >
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" class="hidden-md-and-up"/>
@@ -41,6 +29,7 @@
         </v-app-bar>
         <v-main>
             <slot/>
+            <v-btn @click="displayError('test2')">snck</v-btn>
         </v-main>
 
         <!-- FAB -->
@@ -50,38 +39,36 @@
         <Footer/>
 
         <!-- Snackbar -->
-        <!--<AppSnackbar/>-->
+        <AppSnackbar/>
 
     </v-app>
 </template>
 
 <script setup>
-import { useDisplay } from 'vuetify'
-import colors from 'vuetify/lib/util/colors'
-import { useTheme } from 'vuetify'
+import {useDisplay} from 'vuetify'
+import {useTheme} from 'vuetify'
+import {useWalletStore} from "~/stores/wallet";
+import {useSnackbarStore} from "~/stores/snackbar";
 
-/*import {useWalletStore} from "~/stores/wallet";
-const walletStore = useWalletStore()
-walletStore.fetchWallets(context)
-walletStore.fetchCurrent(context)
-categoryStore.fetchExpense()
-categoryStore.fetchIncome()*/
-
+const nuxtApp = useNuxtApp();
 const theme = useTheme()
-const { mdAndUp } = useDisplay()
+const {mdAndUp} = useDisplay()
+
+const walletStore = useWalletStore()
+const snackbarStore = useSnackbarStore()
+const { fetchWallets } = walletStore
+fetchWallets(nuxtApp);
+const { displayError } = snackbarStore
 
 onMounted(() => {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
         theme.global.name.value = 'themeDark'
     }
-
 })
 
 const fab = ref(false)
-const clipped = ref(false)
 const drawer = ref(false)
-const fixed = ref(false)
-const miniVariant = ref(false)
+const rail = ref(false)
 
 const items = [
     {
