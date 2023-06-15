@@ -1,54 +1,54 @@
 <template>
-  <v-speed-dial
-    v-model="fab"
-    bottom
-    right
-    direction="top"
-    transition="slide-y-reverse-transition"
-    fixed
-  >
-    <template v-slot:activator>
-      <v-btn
+  <div class="fab-container" :class="{ 'fab-active': fab }" style="z-index: 10000">
+    <v-btn
+        abs
         v-model="fab"
         color="accent"
-        dark
-        fab
-      >
-        <v-icon class="toggleUpDown" :class='{ "rotate": fab }'>
-          mdi-plus
-        </v-icon>
-      </v-btn>
-    </template>
-    <v-btn
-      fab
-      dark
-      small
-      color="red"
-      to="/expense/add"
-    >
-      <v-icon>mdi-minus</v-icon>
-    </v-btn>
-    <v-btn
-      fab
-      dark
-      small
-      color="green"
-      to="/income/add"
-    >
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
-  </v-speed-dial>
+        location="bottom right"
+        class="toggleUpDown text-white"
+        :class="{ 'rotate': fab }"
+        @click="fab = !fab"
+        icon="mdi-plus"
+    />
+    <v-slide-y-reverse-transition>
+      <v-btn
+          v-show="fab"
+          transition
+          size="small"
+          color="red"
+          to="/expense/add"
+          class="mb-4"
+          icon="mdi-minus"
+      />
+    </v-slide-y-reverse-transition>
+    <v-slide-y-reverse-transition>
+      <v-btn
+          v-show="fab"
+          size="small"
+          color="green"
+          to="/income/add"
+          class="mb-4"
+          icon="mdi-plus"
+      />
+      </v-slide-y-reverse-transition>
+  </div>
 </template>
 
 <script setup>
-const fab = ref(false)
+import {ref} from 'vue'
 
-defineProps({
-    walletID : String
-})
+const fab = ref(false)
 </script>
 
 <style scoped>
+.fab-container {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
 
 .toggleUpDown {
   transition: transform .3s ease-in-out !important;
@@ -57,5 +57,4 @@ defineProps({
 .toggleUpDown.rotate {
   transform: rotate(45deg);
 }
-
 </style>

@@ -1,6 +1,7 @@
 <template>
     <v-container>
         <h1>Index</h1>
+      <AddEditIncomeExpense/>
     </v-container>
 
 </template>

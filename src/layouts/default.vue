@@ -29,11 +29,10 @@
         </v-app-bar>
         <v-main>
             <slot/>
-            <v-btn @click="displayError('test2')">snck</v-btn>
         </v-main>
 
         <!-- FAB -->
-        <!--<IncomeExpenseFAB/>-->
+        <IncomeExpenseFAB/>
 
         <!-- Footer -->
         <Footer/>
