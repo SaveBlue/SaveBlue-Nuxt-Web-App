@@ -9,7 +9,7 @@ export const useCategoryStore = defineStore('categoryStore', {
   getters: {
     getLoading: (state) => !!(state.loading)
   },
-  actions: {
+  /*actions: {
     async fetchIncome() {
       this.loading++
       try {
@@ -40,5 +40,5 @@ export const useCategoryStore = defineStore('categoryStore', {
         this.loading--
       }
     },
-  }
+  }*/
 })

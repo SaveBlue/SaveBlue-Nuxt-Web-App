@@ -22,7 +22,7 @@ export default defineNuxtConfig({
 
   modules: [
       '@pinia/nuxt',
-      //'@pinia-plugin-persistedstate/nuxt',
+      '@pinia-plugin-persistedstate/nuxt',
   ],
 
   runtimeConfig:{
@@ -36,6 +36,6 @@ export default defineNuxtConfig({
   },
 
   devtools: {
-    enabled: true,
+    enabled: false,
   },
 })

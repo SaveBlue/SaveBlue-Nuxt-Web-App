@@ -6,10 +6,10 @@
 
 </template>
 
-<script>
-export default {
-    name: "index"
-}
+<script setup>
+definePageMeta({
+  middleware: ["auth"]
+})
 </script>
 
 <style scoped>

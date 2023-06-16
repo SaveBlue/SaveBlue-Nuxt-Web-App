@@ -21,9 +21,9 @@ fetchWallets(nuxtApp);
 fetchCurrent(nuxtApp);
 
 const categoryStore = useCategoryStore()
-const { fetchExpense, fetchIncome } = categoryStore;
+/*const { fetchExpense, fetchIncome } = categoryStore;
 fetchExpense();
-fetchIncome();
+fetchIncome();*/
 
 
 onMounted(() => {
