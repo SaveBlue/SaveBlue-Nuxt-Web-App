@@ -23,7 +23,7 @@
 
 <script setup>
 
-const props = defineProps({
+defineProps({
     wallet: Object,
     isNew: Boolean
 })

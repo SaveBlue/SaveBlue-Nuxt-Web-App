@@ -19,9 +19,9 @@
     </v-card>
 </template>
 
-<script>
+<script setup>
 
-const props = defineProps({
+defineProps({
     isExpense: Boolean,
     incomeExpense: Object
 })
