@@ -26,15 +26,11 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
-            baseApiUrl: 'http://localhost:5000',
+            baseApiUrl: 'http://localhost:5000/api',
         }
     },
 
     build: {
         transpile: ["vuetify"],
-    },
-
-    devtools: {
-        enabled: false,
     },
 })
