@@ -1,76 +1,32 @@
 <template>
-    <v-container>
-        <h1>Index</h1>
-
-        <div>
-            <ClientOnly>
-                <apexchart
-                        :key="series"
-                        height="400"
-                        width="100%"
-                        :options="options"
-                        :series="series"
-                ></apexchart>
-                <button
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        @click="updateChart"
-                >
-                    Change
-                </button>
-            </ClientOnly>
-        </div>
-
-        <AddEditWallet/>
-    </v-container>
+  <v-container>
+    <v-row align="center">
+      <v-col v-if="getLoading" cols="12" sm="6">
+        <WalletCardSkeleton/>
+      </v-col>
+      <v-col v-if="getLoading" cols="12" sm="6">
+        <WalletCardSkeleton/>
+      </v-col>
+      <v-col v-else cols="12" sm="6" v-for="wallet in wallets" :key="wallet._id">
+        <WalletCard :wallet="wallet"/>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <WalletCard :is-new="true"/>
+      </v-col>
+    </v-row>
+  </v-container>
 
 </template>
 
 <script setup>
-definePageMeta({
-    middleware: ["auth"]
-})
+import {useWalletStore} from '~/stores/wallet'
+import {storeToRefs} from "pinia";
 
-const options = ref({
-    chart: {
-        type: "bar",
-    },
-    plotOptions: {
-        bar: {
-            borderRadius: 10,
-            borderRadiusApplication: "around",
-        },
-    },
-});
-const series = ref([
-    {
-        name: "Score",
-        data: [],
-    },
-]);
-const updateChart = () => {
-    //generate array of random numbers of length 10
-    const data = Array.from({length: 10}, () =>
-        Math.floor(Math.random() * 100)
-    );
-    options.value = {
-        ...options.value,
-        xaxis: {
-            categories: Array.from(
-                {length: 10},
-                (_, i) => new Date().getFullYear() - i
-            ), // array of last 10 years
-        },
-    };
-    series.value = [
-        {
-            name: "Score",
-            data: data,
-        },
-    ];
-};
-onMounted(() => {
-    updateChart();
-});
+const walletStore = useWalletStore()
+const {getLoading, wallets} = storeToRefs(walletStore);
+
+walletStore.resetCurrent()
+
 </script>
 
 <style scoped>
