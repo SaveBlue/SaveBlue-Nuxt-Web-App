@@ -1,6 +1,6 @@
 <template>
     <v-container>
-      <v-row style="height: 100vh" align="center">
+      <v-row style="height: 100vh" align="center" justify="center">
           <v-card width="400" class="ma-3" elevation="12">
             <v-toolbar color="primary">
               <v-avatar size="50" class="my-3 mr-3 ml-3 rounded-circle" image="logo.png"/>
