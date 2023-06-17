@@ -50,17 +50,14 @@ import {useWalletStore} from "~/stores/wallet";
 import {useSnackbarStore} from "~/stores/snackbar";
 import {useAuthStore} from "~/stores/auth";
 
-const nuxtApp = useNuxtApp();
 const theme = useTheme()
 const {mdAndUp} = useDisplay()
 
-const walletStore = useWalletStore()
-const snackbarStore = useSnackbarStore()
-const authStore = useAuthStore()
-const { fetchWallets } = walletStore
+const { fetchWallets } = useWalletStore()
 await fetchWallets();
-const { displayError } = snackbarStore
-const { logout, isAuthenticated } = authStore
+
+const { displayError } = useSnackbarStore()
+const { logout, isAuthenticated } = useAuthStore()
 
 onMounted(() => {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {

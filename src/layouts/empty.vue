@@ -12,18 +12,15 @@ import { useTheme } from 'vuetify'
 import {useWalletStore} from "~/stores/wallet";
 import {useCategoryStore} from "~/stores/category";
 
-const nuxtApp = useNuxtApp();
 const theme = useTheme()
 
-const walletStore = useWalletStore()
-const { fetchWallets, fetchCurrent } = walletStore;
-fetchWallets(nuxtApp);
-fetchCurrent(nuxtApp);
+const { fetchWallets, fetchCurrent } = useWalletStore();
+await fetchWallets();
+await fetchCurrent();
 
-const categoryStore = useCategoryStore()
-/*const { fetchExpense, fetchIncome } = categoryStore;
-fetchExpense();
-fetchIncome();*/
+/*const { fetchExpense, fetchIncome } = useCategoryStore();
+await fetchExpense();
+await fetchIncome();*/
 
 
 onMounted(() => {

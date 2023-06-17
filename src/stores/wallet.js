@@ -17,7 +17,7 @@ export const useWalletStore = defineStore('walletStore', {
       const config = useRuntimeConfig().public
       const {idW} = useRoute().params;
       const authStore = useAuthStore()
-      if (route.params.value.idW){
+      if (idW){
         this.loading++
         const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/find/${idW}`, {
           method: "GET",
@@ -52,7 +52,7 @@ export const useWalletStore = defineStore('walletStore', {
       }
       else {
         this.wallets = data.value
-        console.log(this.wallets)
+        //console.log(this.wallets)
       }
       this.loading--;
     },
