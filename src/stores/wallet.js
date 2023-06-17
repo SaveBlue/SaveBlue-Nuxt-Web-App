@@ -59,17 +59,22 @@ export const useWalletStore = defineStore('walletStore', {
     async createWallet(wallet, context) {
       this.loading++
       const authStore = useAuthStore()
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          //const {$axios, $auth} = context
-          $axios.post(
-            `/accounts/${authStore.user._id}`,
-            wallet,
-            {headers: {"x-access-token": authStore.jwt}})
-            .then((res) => {
-              this.wallets.push(res.data)
-              resolve(res.data)
-            })
+          const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${authStore.user._id}`, {
+            method: "POST",
+            headers: {
+              "x-access-token": authStore.jwt
+            }
+          });
+          if (error.value) {
+            console.log(error.value)
+            reject(error)
+          }
+          else {
+            this.wallets.push(data.value)
+            resolve(data.value)
+          }
         } catch (error) {
           reject(error)
         } finally {
@@ -80,18 +85,23 @@ export const useWalletStore = defineStore('walletStore', {
     async updateWallet(walletData, context) {
       this.loading++
       const authStore = useAuthStore()
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          //const {$axios, $auth} = context
-          $axios.put(
-            `/accounts/${this.current._id}`,
-            walletData,
-            {headers: {"x-access-token": authStore.jwt}})
-            .then((res) => {
-              let updatedIndex = this.wallets.findIndex(w => w._id === this.current._id);
-              this.wallets[updatedIndex] = res.data;
-              resolve(res.data)
-            })
+          const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${this.current._id}`, {
+            method: "PUT",
+            headers: {
+              "x-access-token": authStore.jwt
+            }
+          });
+          if (error.value) {
+            console.log(error.value)
+            reject(error)
+          }
+          else {
+            let updatedIndex = this.wallets.findIndex(w => w._id === this.current._id);
+            this.wallets[updatedIndex] = data.value;
+            resolve(data.value)
+          }
         } catch (error) {
           reject(error)
         } finally {
@@ -102,16 +112,21 @@ export const useWalletStore = defineStore('walletStore', {
     deleteWallet(context) {
       this.loading++
       const authStore = useAuthStore()
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          //const {$axios, $auth} = context
-          $axios.delete(
-            `/accounts/${this.current._id}`,
-            {headers: {"x-access-token": authStore.jwt}})
-            .then(() => {
-              this.wallets = this.wallets.filter(w => w.id !== this.current.id)
-              resolve()
-            })
+          const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${this.current._id}`, {
+            method: "DELETE",
+            headers: {
+              "x-access-token": authStore.jwt
+            }
+          });
+          if (error.value) {
+            console.log(error.value)
+            reject(error)
+          } else {
+            this.wallets = this.wallets.filter(w => w.id !== this.current.id)
+            resolve()
+          }
         } catch (error) {
           reject(error)
         } finally {
@@ -121,23 +136,21 @@ export const useWalletStore = defineStore('walletStore', {
     },
     async fetchDraftsWallet(context) {
       this.loading++
+      const config = useRuntimeConfig().public
       const authStore = useAuthStore()
-      try {
-        //const {$axios, $auth} = context
-        await $axios.$get(
-          `/accounts/drafts/${authStore.user._id}`,
-          {headers: {"x-access-token": authStore.jwt}})
-          .then((res) => {
-            this.draftsWallet = res
-          })
-        /*.catch((e)=>{
-          console.log(e)
-        })*/
-      } catch (error) {
-        console.log(error)
-      } finally {
-        this.loading--
+      const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/drafts/${authStore.user._id}`, {
+        method: "GET",
+        headers: {
+          "x-access-token": authStore.jwt
+        }
+      });
+      if (error.value) {
+        console.log(error.value)
       }
+      else {
+        this.draftsWallet = data.value
+      }
+      this.loading--;
     },
   },
 })
