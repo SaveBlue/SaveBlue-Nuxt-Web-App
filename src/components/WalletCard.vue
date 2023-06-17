@@ -7,6 +7,7 @@
             <v-img
                     :src="isNew ? 'addsavebluebanner.png':'savebluebanner.png'"
                     max-width="33%"
+                    cover
             ></v-img>
 
             <div>
