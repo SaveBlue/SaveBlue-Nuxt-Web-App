@@ -23,8 +23,8 @@
                     :type="showPassword ? 'text' : 'password'"
                     label="Password"
                     prepend-icon="mdi-lock"
-                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                    @click:append="showPassword = !showPassword"
+                    :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append-inner="showPassword = !showPassword"
                     autocomplete="on"
                     :disabled="loading"
                 />
