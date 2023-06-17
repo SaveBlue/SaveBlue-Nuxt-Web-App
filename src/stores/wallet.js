@@ -13,7 +13,7 @@ export const useWalletStore = defineStore('walletStore', {
     count: (state) => state.wallets.length,
   },
   actions: {
-    async fetchCurrent(context) {
+    async fetchCurrent() {
       const config = useRuntimeConfig().public
       const {idW} = useRoute().params;
       const authStore = useAuthStore()
@@ -56,7 +56,7 @@ export const useWalletStore = defineStore('walletStore', {
       }
       this.loading--;
     },
-    async createWallet(wallet, context) {
+    async createWallet(wallet) {
       this.loading++
       const authStore = useAuthStore()
       return new Promise(async (resolve, reject) => {
@@ -65,7 +65,8 @@ export const useWalletStore = defineStore('walletStore', {
             method: "POST",
             headers: {
               "x-access-token": authStore.jwt
-            }
+            },
+            body: wallet
           });
           if (error.value) {
             console.log(error.value)
@@ -82,7 +83,7 @@ export const useWalletStore = defineStore('walletStore', {
         }
       });
     },
-    async updateWallet(walletData, context) {
+    async updateWallet(walletData) {
       this.loading++
       const authStore = useAuthStore()
       return new Promise(async (resolve, reject) => {
@@ -91,7 +92,8 @@ export const useWalletStore = defineStore('walletStore', {
             method: "PUT",
             headers: {
               "x-access-token": authStore.jwt
-            }
+            },
+            body: walletData
           });
           if (error.value) {
             console.log(error.value)
@@ -109,7 +111,7 @@ export const useWalletStore = defineStore('walletStore', {
         }
       });
     },
-    deleteWallet(context) {
+    deleteWallet() {
       this.loading++
       const authStore = useAuthStore()
       return new Promise(async (resolve, reject) => {
@@ -134,7 +136,7 @@ export const useWalletStore = defineStore('walletStore', {
         }
       });
     },
-    async fetchDraftsWallet(context) {
+    async fetchDraftsWallet() {
       this.loading++
       const config = useRuntimeConfig().public
       const authStore = useAuthStore()
