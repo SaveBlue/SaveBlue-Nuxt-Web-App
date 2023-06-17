@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia'
+import {useSnackbarStore} from "~/stores/snackbar";
 
 export const useAuthStore = defineStore('authStore', {
     state: () => ({
@@ -45,6 +46,25 @@ export const useAuthStore = defineStore('authStore', {
                 throw new Error(`${userResponse.statusText} ${userResponse.status}`);
             }
             this.user = await userResponse.json()
+        },
+
+        async logout() {
+            const config = useRuntimeConfig().public
+            const snackbarStore = useSnackbarStore()
+            const {data, error} = await useFetch(`${config.baseApiUrl}/auth/logout`, {
+                method: "POST",
+                headers: {
+                    "x-access-token": this.jwt
+                }
+            });
+            if (error.value) {
+                snackbarStore.displayError("Error logging out")
+            }
+            else {
+                this.user = null
+                this.jwt = null
+                useRouter().push({path: "/login"});
+            }
         }
     }
 })

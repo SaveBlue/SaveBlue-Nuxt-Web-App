@@ -23,9 +23,9 @@
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" class="hidden-md-and-up"/>
             <v-toolbar-title>SaveBlue</v-toolbar-title>
             <v-spacer/>
-            <!--<v-btn v-show="$auth.loggedIn" icon @click="$auth.logout()">
+            <v-btn v-show="isAuthenticated" icon @click="logout">
                 <v-icon>mdi-exit-to-app</v-icon>
-            </v-btn>-->
+            </v-btn>
         </v-app-bar>
         <v-main>
             <slot/>
@@ -48,6 +48,7 @@ import {useDisplay} from 'vuetify'
 import {useTheme} from 'vuetify'
 import {useWalletStore} from "~/stores/wallet";
 import {useSnackbarStore} from "~/stores/snackbar";
+import {useAuthStore} from "~/stores/auth";
 
 const nuxtApp = useNuxtApp();
 const theme = useTheme()
@@ -55,9 +56,11 @@ const {mdAndUp} = useDisplay()
 
 const walletStore = useWalletStore()
 const snackbarStore = useSnackbarStore()
+const authStore = useAuthStore()
 const { fetchWallets } = walletStore
-fetchWallets(nuxtApp);
+await fetchWallets();
 const { displayError } = snackbarStore
+const { logout, isAuthenticated } = authStore
 
 onMounted(() => {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
