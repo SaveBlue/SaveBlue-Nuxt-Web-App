@@ -15,37 +15,38 @@ export const useAuthStore = defineStore('authStore', {
     actions: {
         async login(username, password) {
             // Send request to server
-            const jwtResponse = await fetch('http://localhost:5000/api/auth/login', {
+            const config = useRuntimeConfig().public
+            const {data: jwtResponse, error} = await useFetch(`${config.baseApiUrl}/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({
                     username: username,
                     password: password
                 })
             })
-            if (!jwtResponse.ok) {
-                throw new Error(`${jwtResponse.statusText} ${jwtResponse.status}`);
+            if (error.value) {
+                throw new Error(`${error.value}`);
             }
+            else {
+                const jwt = jwtResponse.value["x-access-token"]
+                console.log("hwt: ",jwt)
 
-            const jwt = (await jwtResponse.json())["x-access-token"]
+                // Save JWT token
+                this.jwt = jwt
 
-            // Save JWT token
-            this.jwt = jwt
-
-            // Save user
-            const userResponse = await fetch('http://localhost:5000/api/users/me', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-access-token': jwt
+                // Save user
+                const {data:userResponse, error} = await useFetch(`${config.baseApiUrl}/users/me`, {
+                    method: 'GET',
+                    headers: {
+                        'x-access-token': jwt
+                    }
+                })
+                if (error.value) {
+                    throw new Error(`${userResponse.statusText} ${userResponse.status}`);
                 }
-            })
-            if (!userResponse.ok) {
-                throw new Error(`${userResponse.statusText} ${userResponse.status}`);
+                else {
+                    this.user = userResponse.value
+                }
             }
-            this.user = await userResponse.json()
         },
 
         async logout() {
@@ -59,8 +60,7 @@ export const useAuthStore = defineStore('authStore', {
             });
             if (error.value) {
                 snackbarStore.displayError("Error logging out")
-            }
-            else {
+            } else {
                 this.user = null
                 this.jwt = null
                 useRouter().push({path: "/login"});

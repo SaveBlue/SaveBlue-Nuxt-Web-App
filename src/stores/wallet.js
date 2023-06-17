@@ -41,18 +41,19 @@ export const useWalletStore = defineStore('walletStore', {
       this.loading++
       const config = useRuntimeConfig().public
       const authStore = useAuthStore()
-      const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${authStore.user._id}`, {
-        method: "GET",
-        headers: {
-          "x-access-token": authStore.jwt
+      if (typeof authStore.user !== 'undefined') {
+        const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${authStore.user._id}`, {
+          method: "GET",
+          headers: {
+            "x-access-token": authStore.jwt
+          }
+        });
+        if (error.value) {
+          console.log(error.value)
+        } else {
+          this.wallets = data.value
+          //console.log(this.wallets)
         }
-      });
-      if (error.value) {
-        console.log(error.value)
-      }
-      else {
-        this.wallets = data.value
-        //console.log(this.wallets)
       }
       this.loading--;
     },
