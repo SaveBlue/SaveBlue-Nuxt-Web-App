@@ -1,5 +1,6 @@
 <template>
   <v-container>
+
     <v-row align="center">
       <v-col v-if="getLoading" cols="12" sm="6">
         <WalletCardSkeleton/>
@@ -15,7 +16,7 @@
       </v-col>
     </v-row>
   </v-container>
-
+  {{getLoading}}
 </template>
 
 <script setup>

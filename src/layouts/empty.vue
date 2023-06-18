@@ -11,10 +11,11 @@
 import { useTheme } from 'vuetify'
 import {useWalletStore} from "~/stores/wallet";
 import {useCategoryStore} from "~/stores/category";
+import {storeToRefs} from "pinia";
 
 const theme = useTheme()
 
-const { fetchWallets, fetchCurrent } = useWalletStore();
+const { fetchWallets, fetchCurrent} = useWalletStore();
 await fetchWallets();
 await fetchCurrent();
 

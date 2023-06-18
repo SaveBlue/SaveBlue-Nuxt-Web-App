@@ -14,7 +14,7 @@
                 <v-icon>mdi-close</v-icon>
             </v-app-bar-nav-icon>
 
-            <v-toolbar-title v-if="edit">{{ currentWallet.name }}</v-toolbar-title>
+            <v-toolbar-title v-if="edit">{{ wallet.name }}</v-toolbar-title>
             <v-toolbar-title v-else>New Wallet</v-toolbar-title>
 
         </v-app-bar>
@@ -88,6 +88,7 @@
 
 import {useWalletStore} from '~/stores/wallet'
 import {useSnackbarStore} from "~/stores/snackbar";
+import {storeToRefs} from "pinia";
 
 const props = defineProps({
     edit: {
@@ -102,12 +103,9 @@ const wallet = ref({
 })
 const dialog = ref(false)
 
-const currentWallet = computed(() => {
-    return useWalletStore().current
-})
-const loading = computed(() => {
-    return useWalletStore().getLoading
-})
+const {current: currentWallet, getLoading:loading} = storeToRefs(useWalletStore())
+console.log(currentWallet.value)
+
 const snackbar = useSnackbarStore()
 const router = useRouter();
 

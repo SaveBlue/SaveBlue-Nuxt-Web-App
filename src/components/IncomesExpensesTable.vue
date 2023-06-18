@@ -1,7 +1,6 @@
 <template>
     <v-card
             class="mx-auto"
-            hover="true"
             :to="`/${this.isExpense ? 'expense': 'income'}/${incomeExpense._id}/edit`"
     >
 
