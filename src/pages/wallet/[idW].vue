@@ -51,7 +51,6 @@
 
         <!-- Wallet Expenses -->
         <v-window-item>
-            {{ dataExpenses }}
             <v-container>
                 <v-row class="pt-1" align="center" justify="center">
                     <v-col class="py-1" cols="12" v-for="expense in dataExpenses.expenses" :key="expense._id">
@@ -66,7 +65,6 @@
         </v-window-item>
 
         <v-window-item>
-            {{ dataIncomes }}
             <v-container>
                 <v-row class="pt-1" align="center" justify="center">
                     <v-col class="py-1" cols="12" v-for="income in dataIncomes.incomes" :key="income._id">
@@ -89,6 +87,7 @@
 import {useWalletStore} from "~/stores/wallet";
 import {storeToRefs} from "pinia";
 import {useAuthStore} from "~/stores/auth";
+import {useFetch} from "#app";
 
 definePageMeta({layout: 'empty'})
 
@@ -109,107 +108,90 @@ const dataExpenses = ref({
     stopLoadingExpenses: false,
 })
 
-onMounted(async () => {
-    if (!getLoading.value) {
-        console.log("mounted")
-        await loadDataExpenses();
-        await loadDataIncomes();
-    }
-})
-
-watch(() => getLoading.value, async (newValue, oldValue) => {
+watch(() => getLoading.value, (newValue, oldValue) => {
         if (oldValue && !newValue) {
-            await loadDataExpenses();
-            await loadDataIncomes();
+            loadData();
         }
     }
 );
 
+onMounted(() => {
+    if (!getLoading.value) {
+        loadData();
+    }
+})
+
+const loadData = async () => {
+    dataIncomes.value.incomesPageCounter = 0;
+    dataExpenses.value.expensesPageCounter = 0;
+
+    await Promise.all([inRefresh(), exRefresh()])
+
+    dataIncomes.value.incomes = inData.value
+    dataExpenses.value.expenses = exData.value
+}
+
+const {
+    data: inData,
+    refresh: inRefresh,
+} = await useFetch(`${config.baseApiUrl}/incomes/find/${wallet.value._id}`, {
+    method: "GET",
+    headers: {
+        "x-access-token": authStore.jwt
+    },
+    immediate: false,
+    onRequest({request, options}) {
+        // Set the request headers
+        options.query = {page: dataIncomes.value.incomesPageCounter}
+
+    }
+})
+
+const {
+    data: exData,
+    refresh: exRefresh,
+} = await useFetch(`${config.baseApiUrl}/expenses/find/${wallet.value._id}`, {
+    method: "GET",
+    headers: {
+        "x-access-token": authStore.jwt
+    },
+    immediate: false,
+    onRequest({request, options}) {
+        // Set the request headers
+        options.query = {page: dataExpenses.value.expensesPageCounter}
+
+    }
+})
+
+
 // methods
 // --------------------
 
-const loadDataIncomes = () => {
-    return new Promise(async (resolve) => {
-
-        const {data: inData} = await useFetch(`${config.baseApiUrl}/incomes/find/${wallet.value._id}`, {
-            method: "GET",
-            headers: {
-                "x-access-token": authStore.jwt
-            }
-        });
-
-        dataIncomes.value.incomes = inData.value;
-        dataIncomes.value.stopLoadingIncomes = true;
-
-        resolve();
-
-    });
-};
-const loadDataExpenses = async () => {
-    return new Promise(async (resolve) => {
-        const {data: exData} = await useFetch(`${config.baseApiUrl}/expenses/find/${wallet.value._id}`, {
-            method: "GET",
-            headers: {
-                "x-access-token": authStore.jwt
-            }
-        })
-        dataExpenses.value.expenses = exData.value;
-        dataExpenses.value.stopLoadingExpenses = true;
-        resolve();
-    });
-}
-
-const infiniteScrollingExpenses = async (entries, observer, isIntersecting) => {
+const infiniteScrollingExpenses = async (isIntersecting, entries, observer) => {
 
     if (isIntersecting && !dataExpenses.value.stopLoadingExpenses) {
         dataExpenses.value.expensesPageCounter++;
 
-        const {data, error} = await useFetch(`${config.baseApiUrl}/expenses/find/${wallet.value._id}`, {
-            method: "GET",
-            headers: {
-                "x-access-token": authStore.jwt
+        await exRefresh()
 
-            },
-            params: {page: dataExpenses.value.expensesPageCounter}
-        });
-        dataExpenses.value.expenses = data.value;
-        dataExpenses.value.stopLoadingExpenses = true;
+        dataExpenses.value.expenses.push(...exData.value)
 
-        if (error) {
-            console.log(error);
-        } else {
-            if (data.value.length > 0) {
-                data.value.forEach(item => dataExpenses.value.expenses.push(item));
-            } else {
-                dataExpenses.value.stopLoadingExpenses = true
-            }
+        if (exData.value.length <= 0) {
+            dataExpenses.value.stopLoadingExpenses = true
         }
     }
 }
-const infiniteScrollingIncomes = async (entries, observer, isIntersecting) => {
+const infiniteScrollingIncomes = async (isIntersecting, entries, observer) => {
 
     if (isIntersecting && !dataIncomes.value.stopLoadingIncomes) {
         dataIncomes.value.incomesPageCounter++;
 
-        const {data, error} = await useFetch(`${config.baseApiUrl}/incomes/find/${wallet.value._id}`, {
-            method: "GET",
-            headers: {
-                "x-access-token": authStore.jwt
+        await inRefresh()
 
-            },
-            params: {page: dataIncomes.value.incomesPageCounter}
-        });
-        dataIncomes.value.incomes = data.value;
-        dataIncomes.value.stopLoadingIncomes = true;
+        dataIncomes.value.incomes.push(...inData.value)
 
-        if (error) {
-            console.log(error);
-        } else {
-            if (data.value.length > 0) {
-                data.value.forEach(item => dataIncomes.value.incomes.push(item));
-            } else {
-                dataIncomes.value.stopLoadingIncomes = true
-            }
+        if (inData.value.length <= 0) {
+            dataIncomes.value.stopLoadingIncomes = true
         }
     }
 }

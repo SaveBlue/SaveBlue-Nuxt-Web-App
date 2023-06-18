@@ -17,10 +17,8 @@ export const useWalletStore = defineStore('walletStore', {
       const config = useRuntimeConfig().public
       const authStore = useAuthStore()
       const {idW} = useRoute().params;
-      console.log(idW)
       if (idW && idW !== 'edit') {
         this.loading++
-        console.log("nekinekeinein")
         const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/find/${idW}`, {
           method: "GET",
           headers: {
