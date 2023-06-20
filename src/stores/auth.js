@@ -58,7 +58,8 @@ export const useAuthStore = defineStore('authStore', {
                     "x-access-token": this.jwt
                 }
             });
-            if (error.value) {
+            if (error.value && error.value.statusCode !== 401) {
+                console.log(error.value.statusCode)
                 snackbarStore.displayError("Error logging out")
             } else {
                 this.user = null

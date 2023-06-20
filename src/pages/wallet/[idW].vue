@@ -96,6 +96,12 @@ const {getLoading, current: wallet} = storeToRefs(walletStore);
 const authStore = useAuthStore();
 const config = useRuntimeConfig().public
 
+const {fetchCurrent} = walletStore;
+// only fetch if wallet is not loaded or if the loaded wallet is not the current one
+if (!!!wallet.value || wallet.value._id !== useRoute().params.idW) {
+    await fetchCurrent()
+}
+
 const tab = ref(0)
 const dataIncomes = ref({
     incomes: [],
@@ -115,59 +121,44 @@ watch(() => getLoading.value, (newValue, oldValue) => {
     }
 );
 
-onMounted(() => {
-    if (!getLoading.value) {
-        loadData();
-    }
-})
-
 const loadData = async () => {
-    dataIncomes.value.incomesPageCounter = 0;
-    dataExpenses.value.expensesPageCounter = 0;
-
     await Promise.all([inRefresh(), exRefresh()])
 
     dataIncomes.value.incomes = inData.value
     dataExpenses.value.expenses = exData.value
 }
 
-const {
-    data: inData,
-    refresh: inRefresh,
-} = await useFetch(`${config.baseApiUrl}/incomes/find/${wallet.value._id}`, {
-    method: "GET",
-    headers: {
-        "x-access-token": authStore.jwt
-    },
-    immediate: false,
-    onRequest({request, options}) {
-        // Set the request headers
-        options.query = {page: dataIncomes.value.incomesPageCounter}
+const urlIncomes = `${config.baseApiUrl}/incomes/find/${wallet.value._id}`
+const {data: inData, refresh: inRefresh} = await useAsyncData(urlIncomes,
+    () => $fetch(urlIncomes, {
+        method: "GET",
+        headers: {
+            "x-access-token": authStore.jwt
+        },
+        query: {page: dataIncomes.value.incomesPageCounter},
+    }),
+    {immediate: false}
+)
 
-    }
-})
+const urlExpenses = `${config.baseApiUrl}/expenses/find/${wallet.value._id}`
+const {data: exData, refresh: exRefresh} = await useAsyncData(urlExpenses,
+    () => $fetch(urlExpenses, {
+        method: "GET",
+        headers: {
+            "x-access-token": authStore.jwt
+        },
+        query: {page: dataExpenses.value.expensesPageCounter},
+    }),
+    {immediate: false}
+)
 
-const {
-    data: exData,
-    refresh: exRefresh,
-} = await useFetch(`${config.baseApiUrl}/expenses/find/${wallet.value._id}`, {
-    method: "GET",
-    headers: {
-        "x-access-token": authStore.jwt
-    },
-    immediate: false,
-    onRequest({request, options}) {
-        // Set the request headers
-        options.query = {page: dataExpenses.value.expensesPageCounter}
-
-    }
-})
+await loadData()
 
 
 // methods
 // --------------------
 
-const infiniteScrollingExpenses = async (isIntersecting, entries, observer) => {
+const infiniteScrollingExpenses = async (isIntersecting) => {
 
     if (isIntersecting && !dataExpenses.value.stopLoadingExpenses) {
         dataExpenses.value.expensesPageCounter++;
@@ -181,7 +172,7 @@ const infiniteScrollingExpenses = async (isIntersecting, entries, observer) => {
         }
     }
 }
-const infiniteScrollingIncomes = async (isIntersecting, entries, observer) => {
+const infiniteScrollingIncomes = async (isIntersecting) => {
 
     if (isIntersecting && !dataIncomes.value.stopLoadingIncomes) {
         dataIncomes.value.incomesPageCounter++;

@@ -41,7 +41,7 @@ export const useWalletStore = defineStore('walletStore', {
       this.loading++
       const config = useRuntimeConfig().public
       const authStore = useAuthStore()
-      if (typeof authStore.user !== 'undefined') {
+      if (typeof authStore.user !== 'undefined' && authStore.user !== null) {
         const {data, error} = await useFetch(`${config.baseApiUrl}/accounts/${authStore.user._id}`, {
           method: "GET",
           headers: {
@@ -67,13 +67,15 @@ export const useWalletStore = defineStore('walletStore', {
             headers: {
               "x-access-token": authStore.jwt
             },
-            body: wallet
+
           });
+          console.log(data)
           if (error.value) {
-            console.log(error.value)
+            console.log(error)
             reject(error)
           }
           else {
+            console.log("aaa")
             this.wallets.push(data.value)
             resolve(data.value)
           }
@@ -97,7 +99,7 @@ export const useWalletStore = defineStore('walletStore', {
             body: walletData
           });
           if (error.value) {
-            console.log(error.value)
+            console.log(error)
             reject(error)
           }
           else {
@@ -106,6 +108,8 @@ export const useWalletStore = defineStore('walletStore', {
             resolve(data.value)
           }
         } catch (error) {
+          console.log("aaaaaaaaaaaaaaaaaaaaaa")
+          console.log(error)
           reject(error)
         } finally {
           this.loading--

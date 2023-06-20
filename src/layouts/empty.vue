@@ -15,9 +15,8 @@ import {storeToRefs} from "pinia";
 
 const theme = useTheme()
 
-const { fetchWallets, fetchCurrent} = useWalletStore();
+const { fetchWallets} = useWalletStore();
 await fetchWallets();
-await fetchCurrent();
 
 /*const { fetchExpense, fetchIncome } = useCategoryStore();
 await fetchExpense();

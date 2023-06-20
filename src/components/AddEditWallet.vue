@@ -104,7 +104,6 @@ const wallet = ref({
 const dialog = ref(false)
 
 const {current: currentWallet, getLoading:loading} = storeToRefs(useWalletStore())
-console.log(currentWallet.value)
 
 const snackbar = useSnackbarStore()
 const router = useRouter();
