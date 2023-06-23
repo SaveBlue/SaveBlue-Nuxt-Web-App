@@ -107,6 +107,7 @@ const {current: currentWallet, getLoading:loading} = storeToRefs(useWalletStore(
 
 const snackbar = useSnackbarStore()
 const router = useRouter();
+const route = useRoute()
 
 watch(loading, (newVal, oldVal) => {
     if (props.edit && oldVal && !newVal) {
@@ -132,11 +133,25 @@ const handleCreateWallet = async () => {
     }
 }
 
-const handleUpdateWallet = () => {
+const handleUpdateWallet = async () => {
+  try {
+    await useWalletStore().updateWallet();
+    navigateTo(`/wallet/ + ${route.params.idW}`)
+    snackbar.displayPrimary("Wallet updated");
+  } catch (error) {
+    snackbar.displayError("Wallet not updated");
+  }
 
 }
 
-const handleDeleteWallet = () => {
+const handleDeleteWallet = async () => {
+  try {
+    await useWalletStore().deleteWallet();
+    navigateTo('/')
+    snackbar.displayPrimary("Wallet deleted");
+  } catch (error) {
+    snackbar.displayError("Wallet not deleted");
+  }
 
 }
 

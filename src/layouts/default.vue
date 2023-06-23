@@ -53,7 +53,7 @@ import {useAuthStore} from "~/stores/auth";
 const theme = useTheme()
 const {mdAndUp} = useDisplay()
 
-const { fetchWallets } = useWalletStore()
+const { fetchWallets, resetAll } = useWalletStore()
 await fetchWallets();
 
 const { displayError } = useSnackbarStore()
@@ -67,7 +67,8 @@ onMounted(() => {
 
 const logout = async () => {
     try {
-        await logoutStore()
+        await logoutStore();
+        await resetAll();
     } catch (e) {
         displayError("Error logging out")
     }
