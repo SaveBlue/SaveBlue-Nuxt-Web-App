@@ -57,13 +57,21 @@ const { fetchWallets } = useWalletStore()
 await fetchWallets();
 
 const { displayError } = useSnackbarStore()
-const { logout, isAuthenticated } = useAuthStore()
+const { logout: logoutStore, isAuthenticated } = useAuthStore()
 
 onMounted(() => {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
         theme.global.name.value = 'themeDark'
     }
 })
+
+const logout = async () => {
+    try {
+        await logoutStore()
+    } catch (e) {
+        displayError("Error logging out")
+    }
+}
 
 const fab = ref(false)
 const drawer = ref(false)

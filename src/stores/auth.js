@@ -1,5 +1,4 @@
 import {defineStore} from 'pinia'
-import {useSnackbarStore} from "~/stores/snackbar";
 
 export const useAuthStore = defineStore('authStore', {
     state: () => ({
@@ -16,55 +15,63 @@ export const useAuthStore = defineStore('authStore', {
         async login(username, password) {
             // Send request to server
             const config = useRuntimeConfig().public
-            const {data: jwtResponse, error} = await useFetch(`${config.baseApiUrl}/auth/login`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    username: username,
-                    password: password
+            const jwtResponse = { data: null, error: null }
+            try {
+                jwtResponse.data = await $fetch(`${config.baseApiUrl}/auth/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
                 })
-            })
-            if (error.value) {
-                throw new Error(`${error.value}`);
+            } catch (e) {
+                jwtResponse.error = e;
+                throw new Error(e);
             }
-            else {
-                const jwt = jwtResponse.value["x-access-token"]
-                console.log("hwt: ",jwt)
+            if (jwtResponse.data) {
+                const jwt = jwtResponse.data["x-access-token"]
 
                 // Save JWT token
                 this.jwt = jwt
 
-                // Save user
-                const {data:userResponse, error} = await useFetch(`${config.baseApiUrl}/users/me`, {
-                    method: 'GET',
-                    headers: {
-                        'x-access-token': jwt
-                    }
-                })
-                if (error.value) {
-                    throw new Error(`${userResponse.statusText} ${userResponse.status}`);
-                }
-                else {
-                    this.user = userResponse.value
+                const userResponse = { data: null, error: null };
+                try {
+                    userResponse.data = await $fetch(`${config.baseApiUrl}/users/me`, {
+                        method: 'GET',
+                        headers: {
+                            'x-access-token': jwt
+                        }
+                    })
+                    console.log("user: ",userResponse.data)
+                    this.user = userResponse.data
+                } catch (e) {
+                    userResponse.error = e
+                    throw new Error(e);
                 }
             }
         },
 
         async logout() {
             const config = useRuntimeConfig().public
-            const snackbarStore = useSnackbarStore()
-            const {data, error} = await useFetch(`${config.baseApiUrl}/auth/logout`, {
-                method: "POST",
-                headers: {
-                    "x-access-token": this.jwt
-                }
-            });
-            if (error.value && error.value.statusCode !== 401) {
-                console.log(error.value.statusCode)
-                snackbarStore.displayError("Error logging out")
-            } else {
+            const res = { data: null, error: null }
+            try {
+                res.data = await $fetch(`${config.baseApiUrl}/auth/logout`, {
+                    method: "POST",
+                    headers: {
+                        "x-access-token": this.jwt
+                    }
+                });
+            }
+            catch (e) {
+                res.error = e
+            }
+            if (res.data){
                 this.user = null
                 this.jwt = null
                 useRouter().push({path: "/login"});
+            }
+            else {
+                throw new Error(res.error)
             }
         }
     }
