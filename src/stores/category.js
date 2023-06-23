@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia'
+import {useAuthStore} from "~/stores/auth";
 
 export const useCategoryStore = defineStore('categoryStore', {
   state: () => ({
@@ -9,36 +10,44 @@ export const useCategoryStore = defineStore('categoryStore', {
   getters: {
     getLoading: (state) => !!(state.loading)
   },
-  /*actions: {
+  actions: {
     async fetchIncome() {
       this.loading++
+      const config = useRuntimeConfig().public
+      const authStore = useAuthStore()
+      const res = {data: null, error: null}
       try {
-        const {$axios, $auth} = useNuxtApp();
-        const res = await $axios.get(
-          `/incomes`,
-          {headers: {"x-access-token": $auth.strategy.token.get()}})
+        res.data = await $fetch(`${config.baseApiUrl}/incomes`, {
+          headers: {
+            "x-access-token": authStore.jwt
+          }
+        })
         this.income = res.data
-      } catch (error) {
-        console.log(error)
-      }
-      finally {
-        this.loading--
+      } catch (e) {
+        res.error = e;
+        throw new Error(res.error);
+      } finally {
+        this.loading--;
       }
     },
     async fetchExpense() {
+      this.loading++
+      const config = useRuntimeConfig().public
+      const authStore = useAuthStore()
+      const res = {data: null, error: null}
       try {
-        this.loading++
-        const {$axios, $auth} = useNuxtApp();
-        const res = await $axios.get(
-          `/expenses`,
-          {headers: {"x-access-token": $auth.strategy.token.get()}})
+        res.data = await $fetch(`${config.baseApiUrl}/expenses`, {
+          headers: {
+            "x-access-token": authStore.jwt
+          }
+        })
         this.expense = res.data
-      } catch (error) {
-        console.log(error)
-      }
-      finally {
-        this.loading--
+      } catch (e) {
+        res.error = e;
+        throw new Error(res.error);
+      } finally {
+        this.loading--;
       }
     },
-  }*/
+  }
 })
