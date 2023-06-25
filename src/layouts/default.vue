@@ -54,6 +54,7 @@ const theme = useTheme()
 const {mdAndUp} = useDisplay()
 
 const { fetchWallets, resetAll } = useWalletStore()
+// TODO brez await ne dela getLoading
 await fetchWallets();
 
 const { displayError } = useSnackbarStore()

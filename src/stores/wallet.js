@@ -17,7 +17,7 @@ export const useWalletStore = defineStore('walletStore', {
             const config = useRuntimeConfig().public
             const authStore = useAuthStore()
             const {idW} = useRoute().params;
-            if (idW && idW !== 'edit') {
+            if (idW) {
                 this.loading++
                 const res = {data: null, error: null}
                 try {
@@ -116,13 +116,13 @@ export const useWalletStore = defineStore('walletStore', {
             const authStore = useAuthStore()
             const res = {data: null, error: null}
             try {
-                res.data = await useFetch(`${config.baseApiUrl}/accounts/${this.current._id}`, {
+                res.data = await $fetch(`${config.baseApiUrl}/accounts/${this.current._id}`, {
                     method: "DELETE",
                     headers: {
                         "x-access-token": authStore.jwt
                     }
                 });
-                this.wallets = this.wallets.filter(w => w.id !== this.current.id)
+                this.wallets = this.wallets.filter(w => w._id !== this.current._id)
             } catch (e) {
                 res.error = e;
                 throw new Error(res.error);

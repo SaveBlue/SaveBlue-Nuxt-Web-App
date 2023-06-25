@@ -89,6 +89,7 @@
 import {useWalletStore} from '~/stores/wallet'
 import {useSnackbarStore} from "~/stores/snackbar";
 import {storeToRefs} from "pinia";
+import {navigateTo} from "#app";
 
 const props = defineProps({
     edit: {
@@ -103,25 +104,23 @@ const wallet = ref({
 })
 const dialog = ref(false)
 
-const {current: currentWallet, getLoading:loading} = storeToRefs(useWalletStore())
+const walletStore = useWalletStore()
+const {current: currentWallet, getLoading: loading} = storeToRefs(walletStore)
+const {fetchCurrent} = walletStore;
 
 const snackbar = useSnackbarStore()
 const router = useRouter();
 const route = useRoute()
 
-watch(loading, (newVal, oldVal) => {
-    if (props.edit && oldVal && !newVal) {
+if (props.edit && !loading.value) {
+    if (!!!currentWallet.value || currentWallet.value._id !== route.params.idW) {
+        await fetchCurrent()
+    }
+
+    if (typeof currentWallet.value !== "undefined") {
         wallet.value = currentWallet.value;
     }
-})
-
-onMounted(() => {
-    if (props.edit && !loading.value) {
-        if (typeof currentWallet.value !== "undefined") {
-            wallet.value = currentWallet.value;
-        }
-    }
-});
+}
 
 const handleCreateWallet = async () => {
     try {
@@ -134,24 +133,25 @@ const handleCreateWallet = async () => {
 }
 
 const handleUpdateWallet = async () => {
-  try {
-    await useWalletStore().updateWallet();
-    navigateTo(`/wallet/ + ${route.params.idW}`)
-    snackbar.displayPrimary("Wallet updated");
-  } catch (error) {
-    snackbar.displayError("Wallet not updated");
-  }
+    try {
+        await useWalletStore().updateWallet();
+        router.back()
+        snackbar.displayPrimary("Wallet updated");
+    } catch (error) {
+        snackbar.displayError("Wallet not updated");
+    }
 
 }
 
 const handleDeleteWallet = async () => {
-  try {
-    await useWalletStore().deleteWallet();
-    navigateTo('/')
-    snackbar.displayPrimary("Wallet deleted");
-  } catch (error) {
-    snackbar.displayError("Wallet not deleted");
-  }
+    try {
+        await useWalletStore().deleteWallet();
+        dialog.value = false;
+        navigateTo('/')
+        snackbar.displayPrimary("Wallet deleted");
+    } catch (error) {
+        snackbar.displayError("Wallet not deleted");
+    }
 
 }
 

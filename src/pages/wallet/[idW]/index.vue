@@ -14,7 +14,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn icon to="edit" append>
+        <v-btn icon :to="`${route.params.idW}/edit`" append>
             <v-icon>mdi-pencil</v-icon>
         </v-btn>
 
@@ -95,10 +95,11 @@ const walletStore = useWalletStore()
 const {getLoading, current: wallet} = storeToRefs(walletStore);
 const authStore = useAuthStore();
 const config = useRuntimeConfig().public
+const route = useRoute()
 
 const {fetchCurrent} = walletStore;
 // only fetch if wallet is not loaded or if the loaded wallet is not the current one
-if (!!!wallet.value || wallet.value._id !== useRoute().params.idW) {
+if (!!!wallet.value || wallet.value._id !== route.params.idW) {
     await fetchCurrent()
 }
 

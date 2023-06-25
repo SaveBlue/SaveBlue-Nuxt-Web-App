@@ -15,11 +15,9 @@
                 dark
                 app
         >
-            <!--<v-app-bar-nav-icon @click="current ? $router.back() : $router.push('/')">-->
-            <!--<v-app-bar-nav-icon
-                    @click="($nuxt.context.from.path.includes('wallet') || $nuxt.context.from.path.includes('drafts')) ? $router.back() : $router.push('/')">
+            <v-app-bar-nav-icon @click="router.back()">
                 <v-icon>mdi-close</v-icon>
-            </v-app-bar-nav-icon>-->
+            </v-app-bar-nav-icon>
 
             <v-toolbar-title>
                 <span v-if="edit">Edit</span>
@@ -32,7 +30,7 @@
         <v-container>
             <v-card>
                 <v-card-text>
-                    <v-form ref="form">
+                    <v-form ref="inputForm" v-model="valid">
                         <!-- TODO: fix
                         <v-currency-field
                                 v-model="incomeExpense.amount"
@@ -42,6 +40,15 @@
                                 required
                                 suffix="€"
                         />-->
+                        <v-text-field
+                                v-model="incomeExpense.amount"
+                                :rules="applyRules ? amountRules : []"
+                                label="Amount"
+                                prepend-icon="mdi-currency-eur"
+                                required
+                                suffix="€"
+                                variant="underlined"
+                        />
                         <div v-if="isExpense">
                             <v-select
                                     v-model="incomeExpense.category1"
@@ -50,8 +57,9 @@
                                     prepend-icon="mdi-numeric-1-circle-outline"
                                     :rules="requiredRules"
                                     required
+                                    variant="underlined"
                             ></v-select>
-                            <!--<v-select
+                            <v-select
                                     v-if="isExpense"
                                     v-model="incomeExpense.category2"
                                     :disabled="!incomeExpense.category1"
@@ -60,7 +68,8 @@
                                     prepend-icon="mdi-numeric-2-circle-outline"
                                     :rules="requiredRules"
                                     required
-                            ></v-select>-->
+                                    variant="underlined"
+                            />
                         </div>
                         <div v-else>
                             <v-select
@@ -70,6 +79,7 @@
                                     prepend-icon="mdi-numeric-1-circle-outline"
                                     :rules="requiredRules"
                                     required
+                                    variant="underlined"
                             ></v-select>
                         </div>
                         <v-text-field
@@ -78,54 +88,26 @@
                                 label="Description"
                                 prepend-icon="mdi-text"
                                 :rules="descriptionRules"
+                                variant="underlined"
                         />
-                        <!--<v-dialog
-                                ref="dialog"
-                                v-model="modal"
-                                :return-value.sync="incomeExpense.date"
-                                persistent
-                                width="290px"
-                                :rules="requiredRules"
-                        >
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                        v-model="incomeExpense.date"
-                                        label="Date"
-                                        prepend-icon="mdi-calendar"
-                                        readonly
-                                        v-bind="attrs"
-                                        v-on="on"
-                                ></v-text-field>
-                            </template>
-                            <v-date-picker
-                                    v-model="incomeExpense.date"
-                                    scrollable
-                                    first-day-of-week="1"
 
-                            >
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                        text
-                                        color="primary"
-                                        @click="modal = false"
-                                >
-                                    Cancel
-                                </v-btn>
-                                <v-btn
-                                        text
-                                        color="primary"
-                                        @click="$refs.dialog.save(incomeExpense.date)"
-                                >
-                                    OK
-                                </v-btn>
-                            </v-date-picker>
-                        </v-dialog>-->
+                        <v-text-field
+                                v-model="incomeExpense.date"
+                                label="Date"
+                                prepend-icon="mdi-calendar"
+                                variant="underlined"
+                                type="date"
+                        />
+
                         <v-select
                                 v-model="incomeExpense.wallet"
-                                :items="wallets.map(w => w.name)"
+                                :items="wallets"
+                                item-title="name"
+                                item-value="_id"
                                 label="Wallet"
                                 prepend-icon="mdi-wallet"
                                 :rules="requiredRules"
+                                variant="underlined"
                         ></v-select>
                     </v-form>
                 </v-card-text>
@@ -158,6 +140,8 @@ import {storeToRefs} from "pinia";
 import {useAuthStore} from "~/stores/auth";
 import {useSnackbarStore} from "~/stores/snackbar";
 import {useCategoryStore} from "~/stores/category";
+import {VDatePicker} from 'vuetify/labs/VDatePicker'
+import {navigateTo} from "#app";
 
 const route = useRoute()
 const router = useRouter()
@@ -178,6 +162,8 @@ const props = defineProps({
 })
 
 const modal = ref(false);
+const valid = ref(false);
+const inputForm = ref(null)
 
 const incomeExpense = ref({
     amount: 0,
@@ -186,6 +172,8 @@ const incomeExpense = ref({
     description: "",
     date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
     wallet: "",
+    userID: null,
+    accountID: null,
 });
 
 const applyRules = ref(false)
@@ -214,7 +202,6 @@ const {
 })
 
 
-
 // methods
 // ----------------------------------
 
@@ -232,7 +219,7 @@ const loadData = async () => {
         }
 
         const walletFromList = wallets.value.find((w) => w._id === incomeExpense.value.accountID)
-        incomeExpense.value.wallet = walletFromList ? walletFromList.name : ""
+        incomeExpense.value.wallet = walletFromList ? walletFromList._id : ""
         incomeExpense.value.date = incomeExpense.value.date.split("T")[0]
         applyRules.value = true
 
@@ -242,8 +229,33 @@ const loadData = async () => {
 }
 
 await loadData()
-const createIncomeExpense = () => {
-    // TODO
+const createIncomeExpense = async () => {
+
+    const {valid} = await inputForm.value.validate()
+    console.table(incomeExpense.value)
+    if (valid) {
+        try {
+            // required for server
+            incomeExpense.value.amount = parseInt(incomeExpense.value.amount)
+            incomeExpense.value.userID = authStore.user._id
+            incomeExpense.value.accountID = incomeExpense.value.wallet
+
+
+            await $fetch(`${config.baseApiUrl}/${props.isExpense ? 'expenses' : 'incomes'}/`, {
+                method: 'POST',
+                headers: {
+                    "x-access-token": authStore.jwt
+                },
+                body: incomeExpense.value
+            });
+
+            snackbar.displayPrimary("Created successfully")
+            navigateTo("/")
+
+        } catch (e) {
+            snackbar.displayError("Error while creating")
+        }
+    }
 }
 
 const deleteIncomeExpense = async () => {
@@ -262,8 +274,30 @@ const deleteIncomeExpense = async () => {
     }
 }
 
-const updateIncomeExpense = () => {
-    // TODO
+const updateIncomeExpense = async () => {
+
+    const {valid} = await inputForm.value.validate()
+
+    if (valid) {
+        try {
+            // required for server
+            incomeExpense.value.amount = parseInt(incomeExpense.value.amount)
+            incomeExpense.value.accountID = incomeExpense.value.wallet
+
+            await $fetch(`${config.baseApiUrl}/${props.isExpense ? 'expenses' : 'incomes'}/${route.params.id}`, {
+                method: 'PUT',
+                headers: {
+                    "x-access-token": authStore.jwt
+                },
+                body: incomeExpense.value
+            });
+
+            snackbar.displayPrimary("Update successfully")
+            router.back()
+        } catch (e) {
+            snackbar.displayError("Error while updating")
+        }
+    }
 }
 
 </script>
