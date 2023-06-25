@@ -22,7 +22,79 @@ export default defineNuxtConfig({
     modules: [
         '@pinia/nuxt',
         '@pinia-plugin-persistedstate/nuxt',
+        '@vite-pwa/nuxt'
     ],
+
+    pwa: {
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+        workbox: {
+            navigateFallback: '/',
+        },
+        devOptions: {
+            enabled: true,
+            type: 'module'
+        },
+        manifest: {
+            name: "SaveBlue",
+            short_name: "SaveBlue",
+            description: "Finance management app",
+            start_url: "/",
+            display: "standalone",
+            background_color: "#1976d2",
+            icons: [
+                {
+                    src: 'pwa/pwa-192x192.png',
+                    sizes: '192x192',
+                    type: 'image/png'
+                },
+                {
+                    src: 'pwa/pwa-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png'
+                },
+                {
+                    src: 'pwa/pwa-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                    purpose: 'any'
+                },
+                {
+                    src: 'pwa/pwa-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                    purpose: 'maskable'
+                }
+            ],
+            shortcuts: [
+                {
+                    name: "Add Income",
+                    short_name: "Add Income",
+                    description: "Add new income to a wallet",
+                    url: "/income/add",
+                    icons: [
+                        {
+                            src: 'pwa/income.png',
+                            sizes: "192x192",
+                            type: "image/png"
+                        }
+                    ]
+                },
+                {
+                    name: "Add Expense",
+                    short_name: "Add Expense",
+                    description: "Add new expense to a wallet",
+                    url: "/expense/add",
+                    icons: [
+                        {
+                            src: 'pwa/expense.png',
+                            sizes: "192x192",
+                            type: "image/png"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
 
     runtimeConfig: {
         public: {

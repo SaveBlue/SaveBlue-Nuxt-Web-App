@@ -1,4 +1,5 @@
 <template>
+  <VitePwaManifest/>
     <v-app dark>
         <v-main>
             <slot style="height: 100%"/>
