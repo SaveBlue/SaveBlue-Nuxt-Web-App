@@ -15,9 +15,7 @@
                 dark
                 app
         >
-            <v-app-bar-nav-icon @click="router.back()">
-                <v-icon>mdi-close</v-icon>
-            </v-app-bar-nav-icon>
+            <v-app-bar-nav-icon @click="router.back()" icon="mdi-close"/>
 
             <v-toolbar-title>
                 <span v-if="edit">Edit</span>
@@ -27,6 +25,7 @@
             </v-toolbar-title>
 
         </v-app-bar>
+
         <v-container>
             <v-card>
                 <v-card-text>
@@ -72,6 +71,7 @@
                             />
                         </div>
                         <div v-else>
+                        <!-- TODO: make better -->
                             <v-select
                                     v-model="incomeExpense.category1"
                                     :items="categoriesIncome.map(c => c.category1)"
@@ -140,7 +140,6 @@ import {storeToRefs} from "pinia";
 import {useAuthStore} from "~/stores/auth";
 import {useSnackbarStore} from "~/stores/snackbar";
 import {useCategoryStore} from "~/stores/category";
-import {VDatePicker} from 'vuetify/labs/VDatePicker'
 import {navigateTo} from "#app";
 
 const route = useRoute()

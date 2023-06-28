@@ -2,8 +2,7 @@
   <VitePwaManifest/>
     <v-app>
         <v-navigation-drawer
-                :model-value="drawer"
-                :rail="rail"
+                v-model="drawer"
                 :permanent="mdAndUp"
         >
             <v-list>
@@ -29,7 +28,8 @@
             </v-btn>
         </v-app-bar>
         <v-main>
-            <slot/>
+          {{mdAndUp}}
+          <slot/>
         </v-main>
 
         <!-- FAB -->
@@ -76,9 +76,7 @@ const logout = async () => {
     }
 }
 
-const fab = ref(false)
 const drawer = ref(false)
-const rail = ref(false)
 
 const items = [
     {

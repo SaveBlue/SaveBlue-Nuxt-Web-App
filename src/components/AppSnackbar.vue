@@ -1,11 +1,11 @@
 <template>
   <v-snackbar v-model="visible" :timeout="timeout" :color="color">
     {{ text }}
-    <template v-slot:actions>
+    <!--<template v-slot:actions>
       <v-btn color="white" variant="text" @click="visible = false">
         Close
       </v-btn>
-    </template>
+    </template>-->
   </v-snackbar>
 </template>
 

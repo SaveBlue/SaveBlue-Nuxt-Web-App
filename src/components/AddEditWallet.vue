@@ -10,14 +10,11 @@
   <!-- Content -->
     <div v-else>
         <v-app-bar color="primary">
-            <v-app-bar-nav-icon @click="router.back()">
-                <v-icon>mdi-close</v-icon>
-            </v-app-bar-nav-icon>
-
+            <v-app-bar-nav-icon @click="router.back()" icon="mdi-close"/>
             <v-toolbar-title v-if="edit">{{ wallet.name }}</v-toolbar-title>
             <v-toolbar-title v-else>New Wallet</v-toolbar-title>
-
         </v-app-bar>
+
         <v-container>
             <v-card>
                 <v-card-text>
