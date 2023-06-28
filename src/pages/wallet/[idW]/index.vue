@@ -81,6 +81,9 @@
 
     </v-window>
 
+    <!-- FAB -->
+    <IncomeExpenseFAB/>
+
 </template>
 
 <script setup>
