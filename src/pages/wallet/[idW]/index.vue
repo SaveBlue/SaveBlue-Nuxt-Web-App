@@ -43,7 +43,7 @@
                     <!-- Analytics -->
                     <v-col cols="12">
                         <!-- TODO: fix -->
-                        <!--<AnalyticsCard v-if="!getLoading"/>-->
+                        <AnalyticsCard v-if="!getLoading"/>
                     </v-col>
                 </v-row>
             </v-container>
@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+
 import {useWalletStore} from "~/stores/wallet";
 import {storeToRefs} from "pinia";
 import {useAuthStore} from "~/stores/auth";
