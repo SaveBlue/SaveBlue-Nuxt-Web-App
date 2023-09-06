@@ -27,7 +27,7 @@
               @click:append-inner="showPassword2 = !showPassword2"
             />
             <div class="d-flex justify-space-between">
-              <v-btn color="primary" type="submit">Update password</v-btn>
+              <v-btn color="primary" type="submit" :disabled="!valid">Update password</v-btn>
             </div>
           </v-form>
         </v-card-text>
