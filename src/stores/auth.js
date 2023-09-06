@@ -73,6 +73,30 @@ export const useAuthStore = defineStore('authStore', {
             else {
                 throw new Error(res.error)
             }
-        }
+        },
+
+        async register(username, email, password) {
+            const config = useRuntimeConfig().public
+            const res = { data: null, error: null }
+            try {
+                res.data = await $fetch(`${config.baseApiUrl}/auth/register`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+            }
+            catch (e) {
+                res.error = e
+            }
+            if (res.data){
+                //useRouter().push({path: "/login"});
+            }
+            else {
+                throw new Error(res.error)
+            }
+        },
     }
 })

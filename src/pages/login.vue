@@ -45,6 +45,7 @@ import {useSnackbarStore} from "~/stores/snackbar";
 import {useAuthStore} from "~/stores/auth";
 
 //const form = reactive({ username: '', password: '' });
+const router = useRouter()
 const username = ref('');
 const password = ref('');
 const showPassword = ref(false);
@@ -70,7 +71,7 @@ const userLogin = async () => {
     try {
         loading.value = true;
         await authStore.login(username.value, password.value);
-        navigateTo("/");
+        router.push("/");
     } catch (err) {
         console.log(err)
         if (err.message.includes("401")) {
