@@ -1,14 +1,17 @@
 <template>
   <v-container>
     <v-row align="center">
-      <v-col v-show="loading" cols="12" sm="6" v-for="i in 2" :key="i">
-        <account-card-skeleton/>
-      </v-col>
-      <v-col cols="12" sm="6" v-for="account in accounts" :key="account._id">
-        <AccountCard :account="account"/>
+        <v-col v-if="loading" cols="12" sm="6">
+          <WalletCardSkeleton/>
+        </v-col>
+        <v-col v-if="loading" cols="12" sm="6">
+          <WalletCardSkeleton/>
+        </v-col>
+      <v-col v-else cols="12" sm="6" v-for="wallet in wallets" :key="wallet._id">
+        <WalletCard :wallet="wallet"/>
       </v-col>
       <v-col cols="12" sm="6">
-        <AccountCard :is-new="true"/>
+        <WalletCard :is-new="true"/>
       </v-col>
     </v-row>
   </v-container>
@@ -16,19 +19,15 @@
 </template>
 
 <script>
+import {useWalletStore} from '@/store/wallet'
+
 export default {
-  name: "index",
-  data() {
-    return {
-      accounts: [],
-      loading: true
-    }
+  created() {
+    useWalletStore().resetCurrent()
   },
-  async fetch() {
-    this.accounts = await this.$axios.$get(
-      `/accounts/${this.$auth.user._id}`,
-      {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-    ).finally(() => this.loading = false)
+  computed: {
+    loading: () => useWalletStore().getLoading,
+    wallets: () => useWalletStore().wallets
   }
 }
 </script>

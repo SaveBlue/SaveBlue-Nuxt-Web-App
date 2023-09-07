@@ -15,6 +15,7 @@
                 v-model="form.username"
                 label="Username"
                 prepend-icon="mdi-account-circle"
+                :disabled="loading"
               />
               <v-text-field
                 v-model="form.password"
@@ -24,31 +25,23 @@
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
                 autocomplete="on"
+                :disabled="loading"
               />
               <v-card-actions>
                 <v-btn type="submit" color="primary" :loading="loading" :disabled="loading">Login</v-btn>
-                <v-btn color="primary" text absolute right to="register">Register</v-btn>
+                <v-btn color="primary" text absolute right to="register" :disabled="loading">Register</v-btn>
               </v-card-actions>
             </v-form>
           </v-card-text>
         </v-card>
       </v-row>
     </v-container>
-
-    <v-snackbar v-model="snackbar.visible" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-
-      <template v-slot:action="{ attrs }">
-        <v-btn color="white" text v-bind="attrs" @click="snackbar.visible = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-
   </div>
 </template>
 
 <script>
+
+import {useSnackbarStore} from "~/store/snackbar";
 
 export default {
   name: 'Login',
@@ -65,12 +58,6 @@ export default {
   },
   data() {
     return {
-      snackbar: {
-        visible: false,
-        timeout: 2000,
-        color: null,
-        text: '',
-      },
       form: {
         username: '',
         password: ''
@@ -79,6 +66,9 @@ export default {
       loading: false
     };
   },
+  computed:{
+    snackbar: () => useSnackbarStore()
+  },
   methods: {
     async userLogin() {
       try {
@@ -86,32 +76,17 @@ export default {
         let response = await this.$auth.loginWith('local', { data: this.form });
       } catch (err) {
         if(err.message.includes("401")){
-          this.snackbar.text = "Wrong Username or Password"
+          this.snackbar.displayError("Wrong Username or Password")
         }
         else {
-          this.snackbar.text = "Error"
+          this.snackbar.displayError("Error")
         }
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
       }
       finally {
         this.loading = false;
       }
     }
-  },
-    /*...mapActions({
-      login: 'auth/login'
-    }),
-    submit() {
-      this.login(this.form).then(() => {
-        this.$router.replace({name: 'Dashboard'})
-      }).catch(() => {
-        this.snackbar.text = "Napačno uporabniško ime ali geslo"
-        this.snackbar.color = "error";
-        this.snackbar.visible = true;
-      })
-    }
-  }*/
+  }
 }
 </script>
 

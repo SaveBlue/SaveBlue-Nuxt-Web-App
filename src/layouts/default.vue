@@ -49,12 +49,25 @@
     <!-- Footer -->
     <Footer/>
 
+    <!-- Snackbar -->
+    <AppSnackbar/>
+
   </v-app>
 </template>
 
 <script>
+import {useWalletStore} from "@/store/wallet";
+import {useContext} from "@nuxtjs/composition-api";
+
 export default {
   name: 'DefaultLayout',
+  setup(){
+    const context = useContext()
+    const walletStore = useWalletStore()
+
+    walletStore.fetchWallets(context)
+    return {}
+  },
   data () {
     return {
       fab: false,
@@ -66,6 +79,11 @@ export default {
           icon: 'mdi-view-dashboard',
           title: 'Dashboard',
           to: '/'
+        },
+        {
+          icon: 'mdi-credit-card-sync',
+          title: 'Drafts',
+          to: '/drafts'
         },
         {
           icon: 'mdi-account',

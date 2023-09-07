@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="mx-auto"
-    :to="isNew ? 'account/create' :`/account/${account._id}`"
+    :to="isNew ? 'wallet/create' :`/wallet/${wallet._id}`"
   >
     <div class="d-flex flex-no-wrap">
       <v-img
@@ -10,11 +10,11 @@
       ></v-img>
 
       <div>
-        <v-card-title v-if="isNew">New Account</v-card-title>
-        <v-card-title v-else>{{ account.name }}</v-card-title>
+        <v-card-title v-if="isNew">New Wallet</v-card-title>
+        <v-card-title v-else>{{ wallet.name }}</v-card-title>
 
         <v-card-title v-if="isNew"><br></v-card-title>
-        <v-card-title v-else>{{(account.availableBalance/100).toFixed(2) }} €</v-card-title>
+        <v-card-title v-else>{{(wallet.availableBalance/100).toFixed(2) }} €</v-card-title>
       </div>
     </div>
   </v-card>
@@ -23,9 +23,9 @@
 
 <script>
 export default {
-  name: "AccountCard",
+  name: "WalletCard",
   props: {
-    account: Object,
+    wallet: Object,
     isNew: Boolean
   }
 }

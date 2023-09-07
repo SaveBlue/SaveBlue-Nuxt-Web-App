@@ -16,31 +16,6 @@
     </div>
     <v-card-text class="pt-0">{{ incomeExpense.description }}</v-card-text>
 
-    <!--<v-card-actions>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        icon
-        @click="showDetails = !showDetails"
-      >
-        <v-icon>{{ showDetails ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-      </v-btn>
-    </v-card-actions>
-
-    <v-expand-transition>
-      <div v-show="showDetails">
-
-        <v-card-text>{{incomeExpense.description}}</v-card-text>
-        <v-btn
-          color="primary"
-          text
-          :to="`/${this.isExpense ? 'expense': 'income'}/${incomeExpense._id}/edit`"
-        >
-          Edit
-        </v-btn>
-      </div>
-    </v-expand-transition>-->
   </v-card>
 </template>
 
