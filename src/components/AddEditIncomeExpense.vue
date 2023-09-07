@@ -120,7 +120,9 @@
             </v-dialog>
             <v-select
               v-model="incomeExpense.wallet"
-              :items="wallets.map(w => w.name)"
+              :items="wallets"
+              item-text="name"
+              item-value="_id"
               label="Wallet"
               prepend-icon="mdi-wallet"
               :rules="requiredRules"
@@ -203,7 +205,7 @@ export default {
     //this.incomeExpense.amount = this.amount
   },*/
   async fetch() {
-
+    console.log("fetch")
     // Handle route changes
     if (!this.loading) {
       await this.loadData()
@@ -230,17 +232,17 @@ export default {
             (this.incomeExpense.category2) && (this.incomeExpense.category2 = "")
           }
           const walletFromList = this.wallets.find((w) => w._id === this.incomeExpense.accountID)
-          this.incomeExpense.wallet = walletFromList ? walletFromList.name : ""
+          this.incomeExpense.wallet = walletFromList ? walletFromList._id : ""
           this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
           this.applyRules = true
         })
       } else {
-        (typeof this.current !== "undefined") && (this.incomeExpense.wallet = this.current.name)
+        (typeof this.current !== "undefined") && (this.incomeExpense.wallet = this.current._id)
       }
     },
     async createIncomeExpense() {
       if (this.$refs.form.validate() && typeof this.incomeExpense.amount !== 'undefined') {
-        this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
+        this.incomeExpense.accountID = this.incomeExpense.wallet
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
@@ -266,7 +268,7 @@ export default {
     ,
     async updateIncomeExpense() {
       if (this.$refs.form.validate()){
-        this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
+        this.incomeExpense.accountID = this.incomeExpense.wallet
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         //console.log(this.incomeExpense.amount)
