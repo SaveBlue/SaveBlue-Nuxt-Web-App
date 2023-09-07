@@ -20,6 +20,7 @@ export default {
     const categoryStore = useCategoryStore()
 
     walletStore.fetchWallets(context)
+    walletStore.fetchWallets(context,true)
     walletStore.fetchCurrent(context)
     categoryStore.fetchExpense()
     categoryStore.fetchIncome()

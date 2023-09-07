@@ -3,6 +3,7 @@ import {defineStore} from 'pinia'
 export const useWalletStore = defineStore('walletStore', {
   state: () => ({
     wallets: [],
+    archivedWallets: [],
     loading: 0,
     current: undefined,
     draftsWallet: undefined
@@ -34,16 +35,24 @@ export const useWalletStore = defineStore('walletStore', {
     resetCurrent() {
       this.current = undefined
     },
-    async fetchWallets(context) {
+    async fetchWallets(context, archived) {
       this.loading++
       try {
         const {$axios, $auth} = context
+
+        // Define the request parameters
+        let requestParams = {};
+        if (typeof archived !== 'undefined') {
+          requestParams.archived = archived;
+        }
+
         await $axios.get(
           `/accounts/${$auth.user._id}`,
-          {headers: {"x-access-token": $auth.strategy.token.get()}})
+          {headers: {"x-access-token": $auth.strategy.token.get()}, params: requestParams})
           .then((res) => {
             //console.log(res)
-            this.wallets = res.data
+            if (archived) this.archivedWallets = res.data
+            else this.wallets = res.data
           })
         /*.catch((e)=>{
           console.log(e)
