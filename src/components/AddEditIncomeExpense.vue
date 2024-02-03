@@ -125,6 +125,14 @@
               prepend-icon="mdi-wallet"
               :rules="requiredRules"
             ></v-select>
+            <v-file-input
+              v-model="incomeExpense.image"
+              accept="image/png, image/jpeg, image/jpg"
+              label="Receipt Image"
+              prepend-icon="mdi-image-plus"
+              truncate-length="32"
+              chips
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -153,6 +161,7 @@
 import {useSnackbarStore} from '@/store/snackbar'
 import {useCategoryStore} from "~/store/category";
 import {useWalletStore} from "~/store/wallet";
+import Compressor from 'compressorjs';
 
 export default {
   name: "add-income-expense",
@@ -216,6 +225,30 @@ export default {
     }
   },
   methods: {
+    compressImage(image) {
+      return new Promise((resolve, reject) => {
+        new Compressor(image, {
+          quality: 0.6, // Adjust compression quality as needed
+          convertSize: 512000, // Convert to JPEG if size exceeds 0.5MB (value in bytes)
+          maxHeight: 720, // Limit image height to 720px
+          maxWidth: 720, // Limit image width to 720px
+          success: (compressedResult) => {
+            // Convert compressed blob to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(compressedResult);
+            reader.onloadend = () => {
+              resolve(reader.result.split(",")[1]); // Resolve the promise with the base64 string
+            };
+            reader.onerror = (error) => {
+              reject(error); // Reject the promise if there's an error reading the file
+            };
+          },
+          error(err) {
+            reject(err); // Reject the promise if compression fails
+          },
+        });
+      });
+    },
     async loadData(){
       if (this.edit) {
         this.applyRules = false
@@ -244,7 +277,8 @@ export default {
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
-        //console.log(this.incomeExpense.amount)
+        this.incomeExpense.image = this.incomeExpense.image ? await this.compressImage(this.incomeExpense.image) : null
+        //console.log(this.incomeExpense.image)
         try {
           await this.$axios.post(
             `/${this.isExpense ? 'expenses' : 'incomes'}/`,
@@ -258,6 +292,9 @@ export default {
           )
         } catch {
           this.snackbar.displayError("Error")
+        }
+        finally {
+          this.incomeExpense.image = undefined
         }
       } else {
         this.snackbar.displayError("Form not valid")
