@@ -126,10 +126,26 @@
               :rules="requiredRules"
             ></v-select>
             <v-file-input
-              v-model="incomeExpense.image"
-              accept="image/png, image/jpeg, image/jpg"
-              label="Receipt Image"
-              prepend-icon="mdi-image-plus"
+              v-if="incomeExpense.file && !newFile"
+              v-model="incomeExpense.file"
+              accept="image/png, image/jpeg, image/jpg application/pdf"
+              label="Receipt File"
+              prepend-icon="mdi-receipt-text-outline"
+              :clearable=false
+              chips
+            >
+              <template v-slot:selection="{ index }">
+                <v-chip color="primary" close @click:close="removeFile" @click.stop="viewFile">
+                  {{ incomeExpense.file.startsWith("image") ? "Image" : "File"}}
+                </v-chip>
+              </template>
+            </v-file-input>
+            <v-file-input
+              v-else
+              v-model="newFile"
+              accept="image/png, image/jpeg, image/jpg, application/pdf"
+              label="Add Receipt File"
+              prepend-icon="mdi-receipt-text-plus-outline"
               truncate-length="32"
               chips
             />
@@ -177,7 +193,9 @@ export default {
         description: "",
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
         wallet: "",
+        file: null
       },
+      newFile: null,
       applyRules: false,
       //accounts: [],
       requiredRules: [
@@ -225,6 +243,34 @@ export default {
     }
   },
   methods: {
+    async viewFile() {
+      console.log("View file")
+      await this.$axios.$get(
+        `/${this.isExpense ? 'expenses' : 'incomes'}/file/${this.$route.params.id}`,
+        {headers: {"x-access-token": this.$auth.strategy.token.get()},responseType: 'blob'}
+      ).then(response => {
+        // The response is now a Blob, no need to construct a new Blob
+        const url = window.URL.createObjectURL(response)
+
+        // Open the file in a new tab
+        window.open(url)
+      })
+    },
+    removeFile() {
+      this.incomeExpense.file = false;
+    },
+    async blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          resolve(reader.result.split(",")[1]); // Resolve the promise with the base64 string
+        };
+        reader.onerror = (error) => {
+          reject(error); // Reject the promise if there's an error reading the file
+        };
+      });
+    },
     compressImage(image) {
       return new Promise((resolve, reject) => {
         new Compressor(image, {
@@ -265,6 +311,7 @@ export default {
           const walletFromList = this.wallets.find((w) => w._id === this.incomeExpense.accountID)
           this.incomeExpense.wallet = walletFromList ? walletFromList.name : ""
           this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
+          this.incomeExpense.file = response.file
           this.applyRules = true
         })
       } else {
@@ -277,8 +324,15 @@ export default {
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
-        this.incomeExpense.image = this.incomeExpense.image ? await this.compressImage(this.incomeExpense.image) : null
-        //console.log(this.incomeExpense.image)
+        this.incomeExpense.file = this.newFile
+        if (this.incomeExpense.file){
+          if (this.incomeExpense.file.type.includes("image")) {
+            this.incomeExpense.file = await this.compressImage(this.incomeExpense.file);
+          }
+          else{
+              this.incomeExpense.file = await this.blobToBase64(this.incomeExpense.file);
+          }
+        }
         try {
           await this.$axios.post(
             `/${this.isExpense ? 'expenses' : 'incomes'}/`,
@@ -306,7 +360,6 @@ export default {
         this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
-        //console.log(this.incomeExpense.amount)
         try {
           await this.$axios.put(
             `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
