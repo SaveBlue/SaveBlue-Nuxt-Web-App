@@ -128,15 +128,17 @@
             <v-file-input
               v-if="incomeExpense.file && !newFile"
               v-model="incomeExpense.file"
-              accept="image/png, image/jpeg, image/jpg application/pdf"
+              accept="image/png, image/jpeg, image/jpg, application/pdf"
               label="Receipt File"
               prepend-icon="mdi-receipt-text-outline"
               :clearable=false
               chips
+              disabled
+              :rules="[fileValidator]"
             >
               <template v-slot:selection="{ index }">
                 <v-chip color="primary" close @click:close="removeFile" @click.stop="viewFile">
-                  {{ incomeExpense.file.startsWith("image") ? "Image" : "File"}}
+                  {{ incomeExpense?.file?.startsWith("image") ? "Image" : "File"}}
                 </v-chip>
               </template>
             </v-file-input>
@@ -148,6 +150,7 @@
               prepend-icon="mdi-receipt-text-plus-outline"
               truncate-length="32"
               chips
+              :rules="[fileValidator]"
             />
           </v-form>
         </v-card-text>
@@ -243,6 +246,23 @@ export default {
     }
   },
   methods: {
+    fileValidator(value) {
+      if (!value || typeof value === "string") return true; // Allow empty file input (no validation on empty)
+
+      const acceptedTypes = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];
+      const maxSizeMB = 1;
+
+      if (!acceptedTypes.includes(value.type)) {
+        return "Only PNG, JPEG, JPG, and PDF files are allowed.";
+      }
+
+      // Only validate size for PDF files
+      if (value.type === "application/pdf" && value.size > maxSizeMB * 1024 * 1024) {
+        return `PDF files must be smaller than ${maxSizeMB} MB.`;
+      }
+
+      return true;
+    },
     async viewFile() {
       console.log("View file")
       await this.$axios.$get(
@@ -360,6 +380,15 @@ export default {
         this.incomeExpense.accountID = (this.wallets.find((w) => w.name === this.incomeExpense.wallet))._id
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
+        this.incomeExpense.file = this.newFile ? this.newFile : false
+        if (this.incomeExpense.file){
+          if (this.incomeExpense.file.type.includes("image")) {
+            this.incomeExpense.file = await this.compressImage(this.incomeExpense.file);
+          }
+          else{
+            this.incomeExpense.file = await this.blobToBase64(this.incomeExpense.file);
+          }
+        }
         try {
           await this.$axios.put(
             `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
@@ -371,8 +400,8 @@ export default {
               (this.current || this.$nuxt.context.from.path.includes('drafts')) ? this.$router.back() : this.$router.push('/')
             }
           )
-        } catch {
-          this.snackbar.displayError("Error")
+        } catch(err) {
+          this.snackbar.displayError(err.response.data.message || "Error")
         }
       }
       else {
