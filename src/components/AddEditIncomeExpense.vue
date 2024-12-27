@@ -127,6 +127,33 @@
               prepend-icon="mdi-wallet"
               :rules="requiredRules"
             ></v-select>
+            <v-file-input
+              v-if="incomeExpense.file && !newFile"
+              v-model="incomeExpense.file"
+              accept="image/png, image/jpeg, image/jpg, application/pdf"
+              label="Receipt File"
+              prepend-icon="mdi-receipt-text-outline"
+              :clearable=false
+              chips
+              disabled
+              :rules="[fileValidator]"
+            >
+              <template v-slot:selection="{ index }">
+                <v-chip color="primary" close @click:close="removeFile" @click.stop="viewFile">
+                  {{ incomeExpense?.file?.startsWith("image") ? "Image" : "File"}}
+                </v-chip>
+              </template>
+            </v-file-input>
+            <v-file-input
+              v-else
+              v-model="newFile"
+              accept="image/png, image/jpeg, image/jpg, application/pdf"
+              label="Add Receipt File"
+              prepend-icon="mdi-receipt-text-plus-outline"
+              truncate-length="32"
+              chips
+              :rules="[fileValidator]"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -155,6 +182,7 @@
 import {useSnackbarStore} from '@/store/snackbar'
 import {useCategoryStore} from "~/store/category";
 import {useWalletStore} from "~/store/wallet";
+import Compressor from 'compressorjs';
 
 export default {
   name: "add-income-expense",
@@ -170,7 +198,9 @@ export default {
         description: "",
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10),
         wallet: "",
+        file: null
       },
+      newFile: null,
       applyRules: false,
       //accounts: [],
       requiredRules: [
@@ -218,6 +248,75 @@ export default {
     }
   },
   methods: {
+    fileValidator(value) {
+      if (!value || typeof value === "string") return true; // Allow empty file input (no validation on empty)
+
+      const acceptedTypes = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];
+      const maxSizeMB = 1;
+
+      if (!acceptedTypes.includes(value.type)) {
+        return "Only PNG, JPEG, JPG, and PDF files are allowed.";
+      }
+
+      // Only validate size for PDF files
+      if (value.type === "application/pdf" && value.size > maxSizeMB * 1024 * 1024) {
+        return `PDF files must be smaller than ${maxSizeMB} MB.`;
+      }
+
+      return true;
+    },
+    async viewFile() {
+      console.log("View file")
+      await this.$axios.$get(
+        `/${this.isExpense ? 'expenses' : 'incomes'}/file/${this.$route.params.id}`,
+        {headers: {"x-access-token": this.$auth.strategy.token.get()},responseType: 'blob'}
+      ).then(response => {
+        // The response is now a Blob, no need to construct a new Blob
+        const url = window.URL.createObjectURL(response)
+
+        // Open the file in a new tab
+        window.open(url)
+      })
+    },
+    removeFile() {
+      this.incomeExpense.file = false;
+    },
+    async blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          resolve(reader.result.split(",")[1]); // Resolve the promise with the base64 string
+        };
+        reader.onerror = (error) => {
+          reject(error); // Reject the promise if there's an error reading the file
+        };
+      });
+    },
+    compressImage(image) {
+      return new Promise((resolve, reject) => {
+        new Compressor(image, {
+          quality: 0.6, // Adjust compression quality as needed
+          convertSize: 512000, // Convert to JPEG if size exceeds 0.5MB (value in bytes)
+          maxHeight: 720, // Limit image height to 720px
+          maxWidth: 720, // Limit image width to 720px
+          success: (compressedResult) => {
+            // Convert compressed blob to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(compressedResult);
+            reader.onloadend = () => {
+              resolve(reader.result.split(",")[1]); // Resolve the promise with the base64 string
+            };
+            reader.onerror = (error) => {
+              reject(error); // Reject the promise if there's an error reading the file
+            };
+          },
+          error(err) {
+            reject(err); // Reject the promise if compression fails
+          },
+        });
+      });
+    },
     async loadData(){
       if (this.edit) {
         this.applyRules = false
@@ -234,6 +333,7 @@ export default {
           const walletFromList = this.wallets.find((w) => w._id === this.incomeExpense.accountID)
           this.incomeExpense.wallet = walletFromList ? walletFromList._id : ""
           this.incomeExpense.date = this.incomeExpense.date.split("T")[0]
+          this.incomeExpense.file = response.file
           this.applyRules = true
         })
       } else {
@@ -246,7 +346,15 @@ export default {
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
         this.incomeExpense.userID = this.$auth.user._id
-        //console.log(this.incomeExpense.amount)
+        this.incomeExpense.file = this.newFile
+        if (this.incomeExpense.file){
+          if (this.incomeExpense.file.type.includes("image")) {
+            this.incomeExpense.file = await this.compressImage(this.incomeExpense.file);
+          }
+          else{
+              this.incomeExpense.file = await this.blobToBase64(this.incomeExpense.file);
+          }
+        }
         try {
           await this.$axios.post(
             `/${this.isExpense ? 'expenses' : 'incomes'}/`,
@@ -261,6 +369,9 @@ export default {
         } catch {
           this.snackbar.displayError("Error")
         }
+        finally {
+          this.incomeExpense.image = undefined
+        }
       } else {
         this.snackbar.displayError("Form not valid")
       }
@@ -271,7 +382,15 @@ export default {
         this.incomeExpense.accountID = this.incomeExpense.wallet
         //this.incomeExpense.amount = parseInt(this.incomeExpense.amount.replace(".", ""))
         this.incomeExpense.date = new Date(this.incomeExpense.date).toISOString().split("T")[0]
-        //console.log(this.incomeExpense.amount)
+        this.incomeExpense.file = this.newFile ? this.newFile : false
+        if (this.incomeExpense.file){
+          if (this.incomeExpense.file.type.includes("image")) {
+            this.incomeExpense.file = await this.compressImage(this.incomeExpense.file);
+          }
+          else{
+            this.incomeExpense.file = await this.blobToBase64(this.incomeExpense.file);
+          }
+        }
         try {
           await this.$axios.put(
             `/${this.isExpense ? 'expenses' : 'incomes'}/${this.$route.params.id}`,
@@ -283,8 +402,8 @@ export default {
               (this.current || this.$nuxt.context.from.path.includes('drafts')) ? this.$router.back() : this.$router.push('/')
             }
           )
-        } catch {
-          this.snackbar.displayError("Error")
+        } catch(err) {
+          this.snackbar.displayError(err.response.data.message || "Error")
         }
       }
       else {
