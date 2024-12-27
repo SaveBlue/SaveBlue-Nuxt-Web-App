@@ -273,10 +273,21 @@ export default {
       ).then(response => {
         // The response is now a Blob, no need to construct a new Blob
         const url = window.URL.createObjectURL(response)
+        const isIphone = /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
-        // Open the file in a new tab
-        window.open(url)
-      })
+        if (isIphone) {
+          const a = document.createElement('a')
+          a.href = url
+          //a.download = 'file'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+        } else {
+          window.open(url)
+        }
+
+        window.URL.revokeObjectURL(url);
+      });
     },
     removeFile() {
       this.incomeExpense.file = false;
