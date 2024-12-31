@@ -43,6 +43,12 @@
                   thumb-label
                   ticks
                 />
+                <v-checkbox
+                  v-if="edit"
+                  v-model="wallet.archived"
+                  label="Archived"
+                  class="pa-0"
+                ></v-checkbox>
                 <v-row v-show="!edit">
                   <v-col cols="12">
                     <v-btn type="submit" color="primary" @click="handleCreateWallet">Create Wallet</v-btn>
@@ -118,7 +124,8 @@ export default {
     return {
       wallet: {
         name: "",
-        startOfMonth: 1
+        startOfMonth: 1,
+        archived: false
       },
       dialog: false,
       //loading: this.edit,

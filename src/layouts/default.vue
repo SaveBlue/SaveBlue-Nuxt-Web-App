@@ -66,6 +66,7 @@ export default {
     const walletStore = useWalletStore()
 
     walletStore.fetchWallets(context)
+    walletStore.fetchWallets(context, true)
     return {}
   },
   data () {
@@ -84,6 +85,11 @@ export default {
           icon: 'mdi-credit-card-sync',
           title: 'Drafts',
           to: '/drafts'
+        },
+        {
+          icon: 'mdi-archive',
+          title: 'Archived',
+          to: '/archived'
         },
         {
           icon: 'mdi-account',

@@ -45,7 +45,7 @@ import {useSnackbarStore} from "~/store/snackbar";
 
 export default {
   name: 'Login',
-  layout: 'empty',
+  layout: 'auth',
   metaInfo() {
     return {
       meta: [
@@ -66,23 +66,22 @@ export default {
       loading: false
     };
   },
-  computed:{
+  computed: {
     snackbar: () => useSnackbarStore()
   },
   methods: {
     async userLogin() {
       try {
         this.loading = true;
-        let response = await this.$auth.loginWith('local', { data: this.form });
+        let response = await this.$auth.loginWith('local', {data: this.form});
+        console.log(response)
       } catch (err) {
-        if(err.message.includes("401")){
+        if (err.message.includes("401")) {
           this.snackbar.displayError("Wrong Username or Password")
-        }
-        else {
+        } else {
           this.snackbar.displayError("Error")
         }
-      }
-      finally {
+      } finally {
         this.loading = false;
       }
     }
