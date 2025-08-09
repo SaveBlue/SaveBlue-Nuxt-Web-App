@@ -1,4 +1,4 @@
-# src
+# SaveBlue Nuxt 2 Web App
 
 ## Build Setup
 
