@@ -1,6 +1,7 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
+  srcDir: 'src',
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   target: 'static',
   ssr: false,
@@ -24,7 +25,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - src',
+    titleTemplate: '%s - SaveBlue',
     title: 'SaveBlue',
     meta: [
       {charset: 'utf-8'},
