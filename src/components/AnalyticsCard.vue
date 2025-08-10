@@ -61,7 +61,15 @@
         </v-dialog>
 
         <!-- Expense Breakdown -->
-        <IncomeExpenseBreakdown v-if="showGraphs" :isExpense="true" :incomeExpenseBreakdown="expenseBreakdown" @slice-click="openSubcategorySheet"/>
+        <IncomeExpenseBreakdown
+          v-if="showGraphs"
+          :isExpense="true"
+          :incomeExpenseBreakdown="expenseBreakdown"
+          @slice-click="openSubcategorySheet"
+        />
+
+        <!-- Daily Expenses Chart -->
+        <DailyExpensesChart v-if="showGraphs" :data="dailyExpenses" class="mt-2" />
         <!-- Income Breakdown -->
         <IncomeExpenseBreakdown v-if="showGraphs" :incomeExpenseBreakdown="incomeBreakdown" @slice-click="openSubcategorySheet"/>
 
@@ -120,7 +128,10 @@ export default {
       showSubSheet: false,
       selectedCategory: { name: '', sum: 0, isExpense: true },
       subcategoryItems: [],
-      subChartSeries: []
+      subChartSeries: [],
+      startDate: '',
+      endDate: '',
+      dailyExpenses: [],
     }
   },
   computed: {
@@ -143,6 +154,15 @@ export default {
         this.incomeBreakdown = breakdown
       })*/
     },
+      getDailyExpenses() {
+        return this.$axios.$get(
+          `/expenses/daily/${this.wallet._id}`,
+          {
+            headers: {"x-access-token": this.$auth.strategy.token.get()},
+            params: {startDate: this.startDate, endDate: this.endDate}
+          }
+        )
+      },
     async openSubcategorySheet(payload) {
       const { name, sum, isExpense, color } = payload
       if (!isExpense) return
@@ -229,6 +249,9 @@ export default {
 
         // Expense breakdown
         this.expenseBreakdown = await this.getExpenseBreakdown()
+
+        // Daily expenses
+        this.dailyExpenses = await this.getDailyExpenses()
 
         // Income breakdown
         this.incomeBreakdown = await this.getIncomeBreakdown()
