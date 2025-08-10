@@ -26,17 +26,38 @@ export default {
     incomeExpenseBreakdown: Array,
     isExpense: Boolean
   },
+  methods: {
+    onSliceClick(event, chartContext, config) {
+      const dataPointIndex = config && typeof config.dataPointIndex === 'number' ? config.dataPointIndex : -1
+      if (dataPointIndex < 0) return
+      const name = this.chartOptions.labels[dataPointIndex]
+      const sum = this.series[dataPointIndex]
+      let color = undefined
+      try {
+        const w = chartContext && chartContext.w ? chartContext.w : null
+        const colors = (w && w.globals && (w.globals.colors || (w.globals.fill && w.globals.fill.colors))) || []
+        color = colors[dataPointIndex]
+      } catch (e) { /* noop */ }
+      this.$emit('slice-click', { name, sum, isExpense: this.isExpense, color })
+    }
+  },
   computed: {
     series() {
-      let series = []
+      const series = []
       this.incomeExpenseBreakdown.forEach((element) => {
-        series.push(element.sum)
+        const value = typeof element.total === 'number' ? element.total : element.sum
+        if (typeof value === 'number') series.push(value)
       })
       return series
     },
     chartOptions() {
       let chartOptions = {
         labels: [],
+        chart: {
+          events: {
+            dataPointSelection: (event, chartContext, config) => this.onSliceClick(event, chartContext, config)
+          }
+        },
         stroke: {
           show: true,
           colors: this.$vuetify.theme.dark ? '#00000099' : '#ffffffb3'
@@ -105,7 +126,7 @@ export default {
         }
       }
       this.incomeExpenseBreakdown.forEach((element) => {
-        chartOptions.labels.push(element._id)
+        chartOptions.labels.push(element.category1 || element._id)
       })
       return chartOptions
     }
