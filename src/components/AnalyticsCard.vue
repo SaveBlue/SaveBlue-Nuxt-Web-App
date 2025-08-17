@@ -154,6 +154,27 @@ export default {
         this.incomeBreakdown = breakdown
       })*/
     },
+    normalizeDailySeries(rawDaily, startDate, endDate) {
+      const safeArray = Array.isArray(rawDaily) ? rawDaily : []
+      const dateToTotal = new Map()
+      for (const item of safeArray) {
+        if (item && typeof item.date === 'string') {
+          const total = typeof item.total === 'number' ? item.total : 0
+          dateToTotal.set(item.date, total)
+        }
+      }
+      // Build dense series inclusive of both ends
+      const result = []
+      if (!startDate || !endDate) return result
+      let current = new Date(startDate)
+      const last = new Date(endDate)
+      while (current <= last) {
+        const ymd = new Date(current.getTime()).toISOString().slice(0, 10)
+        result.push({ date: ymd, total: dateToTotal.get(ymd) || 0 })
+        current.setUTCDate(current.getUTCDate() + 1)
+      }
+      return result
+    },
       getDailyExpenses() {
         return this.$axios.$get(
           `/expenses/daily/${this.wallet._id}`,
@@ -251,7 +272,8 @@ export default {
         this.expenseBreakdown = await this.getExpenseBreakdown()
 
         // Daily expenses
-        this.dailyExpenses = await this.getDailyExpenses()
+        const rawDaily = await this.getDailyExpenses()
+        this.dailyExpenses = this.normalizeDailySeries(rawDaily, this.startDate, this.endDate)
 
         // Income breakdown
         this.incomeBreakdown = await this.getIncomeBreakdown()
