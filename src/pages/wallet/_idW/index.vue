@@ -27,6 +27,7 @@
           <v-tab>Overview</v-tab>
           <v-tab>Expenses</v-tab>
           <v-tab>Incomes</v-tab>
+          <v-tab>Investments</v-tab>
         </v-tabs>
       </template>
     </v-app-bar>
@@ -76,6 +77,46 @@
           </v-row>
         </v-container>
       </v-tab-item>
+
+      <!-- Wallet Investments -->
+      <v-tab-item>
+        <v-container>
+          <v-row class="pt-1" align="center" justify="center">
+            <!-- Toolbar -->
+            <v-col cols="12" class="pb-0 d-flex align-center">
+              <v-btn small text @click="showBreakdown = !showBreakdown">
+                <v-icon small left>mdi-chart-donut</v-icon>
+                {{ showBreakdown ? 'Hide' : 'Show' }} Breakdown
+              </v-btn>
+              <v-btn small text @click="showClosed = !showClosed">
+                <v-icon small left>mdi-archive</v-icon>
+                {{ showClosed ? 'Hide' : 'Show' }} Closed
+              </v-btn>
+              <v-spacer/>
+              <v-btn small color="primary" to="/investment/add">
+                <v-icon small left>mdi-plus</v-icon>
+                New
+              </v-btn>
+            </v-col>
+
+            <!-- Breakdown Chart -->
+            <v-col cols="12" v-if="showBreakdown && investmentBreakdown.length">
+              <InvestmentBreakdown :breakdown="investmentBreakdown"/>
+            </v-col>
+
+            <!-- Positions List -->
+            <v-col class="py-1" cols="12" v-for="pos in positions" :key="pos._id">
+              <InvestmentPositionCard :position="pos"/>
+            </v-col>
+            <v-col v-if="!positionsLoading && positions.length === 0" class="text-center py-4">
+              <span class="grey--text">No investment positions yet</span>
+            </v-col>
+            <v-col v-if="positionsLoading" class="text-center">
+              <v-progress-circular class="py-2" color="primary" indeterminate/>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-tab-item>
     </v-tabs-items>
 
     <IncomeExpenseFAB/>
@@ -96,21 +137,53 @@ export default {
       expenses: [],
       expensesPageCounter: 0,
       stopLoadingExpenses: false,
+      positions: [],
+      positionsLoading: false,
+      investmentBreakdown: [],
+      showBreakdown: false,
+      showClosed: false,
     }
   },
   methods: {
     async loadData(){
+      const aid = this.$route.params.idW
+      const headers = {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+
       // Wallet incomes
-      this.incomes = await this.$axios.$get(
-        `/incomes/find/${this.$route.params.idW}`,
-        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-      );
+      this.incomes = await this.$axios.$get(`/incomes/find/${aid}`, headers);
 
       // Wallet expenses
-      this.expenses = await this.$axios.$get(
-        `/expenses/find/${this.$route.params.idW}`,
-        {headers: {"x-access-token": this.$auth.strategy.token.get()}}
-      )
+      this.expenses = await this.$axios.$get(`/expenses/find/${aid}`, headers)
+
+      // Wallet investment positions
+      this.loadPositions()
+
+      // Investment breakdown
+      this.loadBreakdown()
+    },
+    async loadPositions() {
+      this.positionsLoading = true
+      try {
+        const params = this.showClosed ? {closed: true} : {}
+        this.positions = await this.$axios.$get(
+          `/investments/positions/${this.$route.params.idW}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}, params}
+        )
+      } catch (err) {
+        console.log(err)
+      } finally {
+        this.positionsLoading = false
+      }
+    },
+    async loadBreakdown() {
+      try {
+        this.investmentBreakdown = await this.$axios.$get(
+          `/investments/breakdown/${this.$route.params.idW}`,
+          {headers: {"x-access-token": this.$auth.strategy.token.get()}}
+        )
+      } catch (err) {
+        console.log(err)
+      }
     },
     infiniteScrollingExpenses(entries, observer, isIntersecting) {
       if (isIntersecting && !this.stopLoadingExpenses) {
@@ -165,6 +238,9 @@ export default {
       if(oldValue && !newValue){
         await this.loadData()
       }
+    },
+    showClosed() {
+      this.loadPositions()
     }
   }
 }
