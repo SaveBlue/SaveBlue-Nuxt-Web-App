@@ -30,7 +30,7 @@
     "webpack": "^4.46.0"
   },
   "devDependencies": {
-    "@nuxt/types": "~2.15.0",
+    "@nuxt/types": "~2.18.1",
     "@nuxtjs/vuetify": "^1.12.3",
     "cross-env": "^7.0.3"
   }
