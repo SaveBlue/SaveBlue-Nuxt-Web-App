@@ -27,7 +27,7 @@
     "vue-server-renderer": "^2.7.14",
     "vue-template-compiler": "^2.7.14",
     "vuetify": "^2.6.1",
-    "webpack": "^4.46.0"
+    "webpack": "^5.106.1"
   },
   "devDependencies": {
     "@nuxt/types": "~2.15.0",
