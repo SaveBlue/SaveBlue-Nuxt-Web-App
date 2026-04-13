@@ -21,7 +21,7 @@
     "nuxt": "^2.15.8",
     "pinia": "^2.0.23",
     "postcss": "^8.4.29",
-    "v-currency-field": "^3.1.1",
+    "v-currency-field": "^3.1.2",
     "vue": "^2.7.14",
     "vue-apexcharts": "^1.6.2",
     "vue-server-renderer": "^2.7.14",
