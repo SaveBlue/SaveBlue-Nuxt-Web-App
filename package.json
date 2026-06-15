@@ -15,7 +15,7 @@
     "@nuxtjs/composition-api": "^0.33.1",
     "@nuxtjs/pwa": "^3.3.5",
     "@pinia/nuxt": "^0.2.1",
-    "apexcharts": "^3.35.5",
+    "apexcharts": "^3.54.1",
     "compressorjs": "^1.2.1",
     "core-js": "^3.19.3",
     "nuxt": "^2.15.8",
